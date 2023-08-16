@@ -11,6 +11,8 @@ class HandleArgs
       '--version',
       '-f',
       '--file',
+      '-d',
+      '--delete',
     ]
   end
 
@@ -43,7 +45,7 @@ class HandleArgs
       else
         ## This is input.
         ## TODO: Handle input.
-        puts "Argument: #{arg}"
+        #puts "Argument: #{arg}"
         if args_hash["input"].nil?
           args_hash["input"] = arg
         else

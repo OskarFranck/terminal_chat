@@ -8,7 +8,7 @@ class Prompt
   end
 
   ## Streams the response, VERY NICE
-  def self.stream_prompt(input, conversation)
+  def self.stream_prompt(input, conversation = '')
     if conversation.length == 0
       conversation += input
     else
@@ -70,6 +70,7 @@ class Prompt
 
   ## Not implemented only scaffolding
   def self.file_finetune()
+    return
     client.files.upload(parameters: { file: "./test.json", purpose: "fine-tune" })
     client.files.list
     client.files.retrieve(id: "file-123")
@@ -78,6 +79,7 @@ class Prompt
   end
   ## Not implemented only scaffolding
   def self.whisper_translate()
+    return
     response = client.audio.translate(
     parameters: {
         model: "whisper-1",
@@ -87,6 +89,7 @@ class Prompt
   end
   ## Not implemented only scaffolding
   def self.whisper_transcribe()
+    return
     response = client.audio.transcribe(
     parameters: {
         model: "whisper-1",

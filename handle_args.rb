@@ -13,13 +13,15 @@ class HandleArgs
       '--file',
       '-d',
       '--delete',
+      '-c',
+      '--conversation',
+      '--finetune'
     ]
   end
 
   def self.handle_args()
     p_args = HandleArgs.permitted_options()
-
-
+    ## This is the hash that will be returned.
     args_hash = {}
 
     ## This handles args when it passed through the command line (bash function that starts the script).
@@ -35,12 +37,13 @@ class HandleArgs
         ## This is an option.
         if p_args.include?(arg)
           ## This is a permitted / available option.
-          puts "Option: #{arg}"
+          #puts "Option: #{arg}"
           args_hash["option_#{i}"] = arg
         else
           ## This is an unknown option.
           ## TODO: Handle unknown option. display help? discard?
           puts "Unknown option: #{arg}"
+          args_hash["option_#{i}"] = arg
         end
       else
         ## This is input.

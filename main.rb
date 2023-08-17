@@ -10,81 +10,73 @@ class Main
 
   def self.run()
     context = load_context()
-    #puts FileUtils.pwd()
     options_and_input = HandleArgs.handle_args()
     options = options_and_input.select { |k, v| k.start_with?("option_") }
     input = options_and_input["input"]
-
     #puts "Options: #{options}"
     #puts "Input: #{input}"
 
-    #puts context
-  
-    if context.length > 0
-      context_as_string = "This is our previous conversation:\n"
-    else
-      context_as_string = ""
-    end
+    halt_options = ["-h", "--help", "-v", "--version", "-f", "--file"]
+    continue_to_prompt = true
 
-    ## This is a bit hacky, but it almost works it append all text every time.
-    if context.length > 0
-      context.each_with_index do |v, i|
-        #puts 'v',v['input']
-        context_as_string += "My #{i + 1} input was: #{v['input']}\nYour #{i + 1} response was: #{v['response']}\nNow I ask: #{input}\n"
+    options.each do |k, v|
+      if halt_options.include?(v)
+        continue_to_prompt = false
       end
-    else
-      context_as_string += "Now I ask: #{input}\n"
     end
 
-    puts '#'*80
-    puts context_as_string
-    puts '#'*80
-    #case options
-    #when "-h", "--help"
-    #  Help.display_help()
-    #when "-v", "--version"
-    #  Help.display_version()
-    #when "-f", "--file"
-    #  Prompt.file_prompt(input)
-    #when "-d", "--delete"
-    #  delete_context()
-    #else
-    #  if input.nil?
-    #    Help.display_help()
-    #  else
-    #    save_context(Prompt.tmp_test(input))
-    #    #save_context(Prompt.stream_prompt(input))
-    #  end
-    #end
-
-
-
+    ## Maybe this should be a case statement?
+    ## but since we have to check for each option this might be better.
     options.each do |k, v|
       #puts "k: #{k}, v: #{v}"
       if v == "-f" || v == "--file"
-        #Prompt.stream_prompt(input)
+        file_path = input
+        puts Prompt.file_prompt(file_path)
       elsif v == "-d" || v == "--delete"
         delete_context()
+      elsif v == "-v" || v == "--version"
+        Help.display_version()
       else
         puts "Unknown option: #{v}"
         Help.display_help()
       end
     end
-    if input.nil?
+
+    # Hack to don't prompt if we have a file.
+    #
+
+
+    ## As of now we always stream the prompt.
+    ## But if ex, -h is given we don't want to stream the prompt.
+    if !input.nil? && continue_to_prompt
+      puts 'streaming prompt'
+      save_context(Prompt.stream_prompt(input, context))
+    elsif input.nil? && continue_to_prompt
       puts "No input given."
       #Help.display_help()
     else
-      #save_context(Prompt.tmp_test(input))
-      save_context(Prompt.stream_prompt(context_as_string))
+      #Help.display_help()
     end
-
   end
 
   ## Here we load the file that contains the context.
   ## This need to be parsed to something we can pass to the prompt.
-  ## Also the file should only be allowed contain 10 lines. 
   def self.load_context()
-    File.readlines("./context.jsonl").map { |line| JSON.parse(line) } 
+    conversation = File.readlines("./context.jsonl").map { |line| JSON.parse(line) }
+
+    if conversation.length > 0
+      context_as_string = "This is our previous conversation:\n"
+    else
+      context_as_string = ""
+    end
+
+    if conversation.length > 0
+      conversation.each_with_index do |v, i|
+        context_as_string += "My #{i + 1} input was: #{v['input']}\nYour #{i + 1} response was: #{v['response']}\n"
+      end
+    end
+
+    return context_as_string
   end
 
   def self.save_context(context)

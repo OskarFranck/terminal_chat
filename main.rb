@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'fileutils'
-['./prompt.rb', './handle_args.rb', './help.rb', './context.rb'].each { |f| require_relative f }
+['./lib/prompt.rb', './lib/handle_args.rb', './lib/help.rb', './lib/context.rb'].each { |f| require_relative f }
 
 class Main
 
@@ -10,6 +10,9 @@ class Main
     options_and_input = HandleArgs.handle_args()
     options = options_and_input.select { |k, v| k.start_with?("option_") }
     input = options_and_input["input"]
+
+    #puts "Options: #{options}"
+    #puts "Input: #{input}"
 
     halt_options = ["-h", "--help", "-v", "--version"]
 
@@ -39,16 +42,24 @@ class Main
           puts 'File'
           file_path = input
           puts Prompt.file_prompt(file_path)
-        when "-d", "--delete" && input.nil?
-          Context.delete_context()
-        when "-d", "--delete" && !input.nil?
-          delete_context()
-          Context.save_context(Prompt.stream_prompt(input, context))
+        when "-d", "--delete"
+          if input.nil?
+            puts 'if'
+            Context.delete_context()
+          else
+            puts 'else'
+            Context.delete_context()
+            Context.save_context(Prompt.stream_prompt(input, context))
+          end
         when "-c", "--conversation"
           Context.save_context(Prompt.stream_prompt(input, context))
-        when "simple" && !input.nil?
-          puts 'No option given'
-          Prompt.stream_prompt(input)
+        when "simple"
+          if !input.nil?
+            Prompt.stream_prompt(input)
+          else
+            puts "No input given."
+            Help.display_help()
+          end
         else
           Help.display_help()
         end

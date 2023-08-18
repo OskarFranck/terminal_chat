@@ -1,6 +1,6 @@
 require "openai"
 
-
+CONFIG_PATH = File.expand_path("../config/config.yml", __dir__)
 class Prompt
 
   def self.tmp_test(input)
@@ -100,6 +100,11 @@ class Prompt
 
   private
 
+  def self.load_key()
+    conf = YAML.load(File.read(CONFIG_PATH))
+    return conf["OPENAI_API_KEY"]
+  end
+
   def self.warning(text)
     accept_warning = false
     while !accept_warning
@@ -118,7 +123,8 @@ class Prompt
     end
   end
 
-  def self.client
-    OpenAI::Client.new(access_token: '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')
+  def self.client()
+    key = load_key()
+    OpenAI::Client.new(access_token: key)
   end
 end

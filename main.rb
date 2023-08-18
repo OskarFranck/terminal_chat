@@ -1,11 +1,21 @@
 #!/usr/bin/env ruby
 
 require 'fileutils'
+require 'yaml'
 ['./lib/prompt.rb', './lib/handle_args.rb', './lib/help.rb', './lib/context.rb'].each { |f| require_relative f }
 
 class Main
 
   def self.run()
+    config = load_env()
+  
+    ## Not secure to store API key in config.yml
+    if config['OPENAI_API_KEY'].nil?
+      puts "No API key found."
+      Help.display_api_key()
+      exit
+    end
+
     context = Context.load_context()
     options_and_input = HandleArgs.handle_args()
     options = options_and_input.select { |k, v| k.start_with?("option_") }
@@ -16,6 +26,8 @@ class Main
 
     halt_options = ["-h", "--help", "-v", "--version"]
 
+    ## Hack... Need to fix this.
+    ## Descriped in README.md
     if options.empty?
       ## No options given.
       options = { "option_0" => "simple" }
@@ -44,10 +56,8 @@ class Main
           puts Prompt.file_prompt(file_path)
         when "-d", "--delete"
           if input.nil?
-            puts 'if'
             Context.delete_context()
           else
-            puts 'else'
             Context.delete_context()
             Context.save_context(Prompt.stream_prompt(input, context))
           end
@@ -65,6 +75,12 @@ class Main
         end
       end
     end
+  end
+
+  private
+
+  def self.load_env()
+    YAML.load(File.read("./config/config.yml"))
   end
 end
 

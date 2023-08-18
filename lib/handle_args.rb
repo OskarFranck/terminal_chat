@@ -8,29 +8,29 @@ class HandleArgs
       '-h',
       '--help',
       '-v',
-      '--version',
-      '-f',
-      '--file',
-      '-d',
-      '--delete',
-      '-c',
-      '--conversation',
-      '--finetune'
-    ]
-  end
+    '--version',
+    '-f',
+    '--file',
+    '-d',
+    '--delete',
+    '-c',
+    '--conversation',
+    '--finetune'
+  ]
+end
 
-  def self.handle_args()
-    p_args = HandleArgs.permitted_options()
-    ## This is the hash that will be returned.
-    args_hash = {}
+def self.handle_args()
+  p_args = HandleArgs.permitted_options()
+  ## This is the hash that will be returned.
+  args_hash = {}
 
-    ## This handles args when it passed through the command line (bash function that starts the script).
-    ## Should probably be handle them in a more general way.
-    #args_arr = ARGV[0].split(' ')
-    #args_arr.each_with_index do |arg, i|
+  ## This handles args when it passed through the command line (bash function that starts the script).
+  ## Should probably be handle them in a more general way.
+  args_arr = ARGV[0].split(' ')
+  args_arr.each_with_index do |arg, i|
 
     ## This handles args then called as ruby script.
-    ARGV.each_with_index do |arg, i|
+    #ARGV.each_with_index do |arg, i|
       #puts "Arg: #{arg}"
 
       if arg.start_with?('-')

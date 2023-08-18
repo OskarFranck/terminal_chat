@@ -10,7 +10,15 @@ class Help
     puts "    -h, --help: Display this help message"
 
   end
-  
+ 
+  def self.display_api_key()
+    puts "You need to set your API key in the file: ./config/config.yml"
+    puts "Create the file if it doesn't exist."
+    puts "Add the following line to the file:"
+    puts "  OPENAI_API_KEY: <your API key>"
+    puts "You can get your API key from: https://openai.com/"
+  end
+
   ## This don't work yet. Need to rework the way we handle args.
   def self.display_help_file()
     ## TODO: How to work with files

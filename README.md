@@ -1,7 +1,43 @@
-Usage: ./main.rb [options] [input]
-  -c, --conversation: Append to conversation (max 10 Q / A saved)
-  -d, --delete: Delete conversation
+## ChatGPT (openAI) in your terminal
 
-  Options:
-    -version, --version: Display version
-    -h, --help: Display this help message
+#### Disclaimer
+Ad hoc created chatGPT cli tool. \
+Do you want standards, conventions and best practice? \
+Then this is not for you :angry:
+
+#### Prerequisites
+Ruby installed \
+Api key from [OpenAI](https://platform.openai.com/overview)
+
+#### Installation
+Clone this repo \
+As of now you need to create a "bash" function that collect the args and runs the main file:
+```
+gpt () { 
+  for i in "$*"; do <path_to_main.rb> "$i"; done; 
+}
+```
+(this is from my bashrc)
+
+Then run: ```gpt --install``` to install depenencies \
+This will create a config.yml where you need to put your OPENAI_API_KEY like so: \
+OPENAI_API_KEY: \<key>
+
+You can then use:
+```gpt [option] [input]``` 
+
+#### Usage
+
+You can interact in two ways, 'normal' or 'conversation'. \
+When you call gpt without flags like so: \
+```gpt Can you give me a simple pasta recipe?``` \
+This is just a single question to the bot. \
+When you call gpt with the conversation flag like so: \
+```gpt -c I love pasta```  
+The bot will 'remeber' that you like pasta and the next prompt could be: \
+```gpt -c Give me a recipe of something i like``` \
+You will proboply get a pasta recipe because you said you love pasta. \
+\
+You can delete the conversation with: \
+```gpt -d``` or ```gpt -d new question```
+

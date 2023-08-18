@@ -2,16 +2,16 @@
 
 require 'fileutils'
 require 'yaml'
-['./lib/prompt.rb', './lib/handle_args.rb', './lib/help.rb', './lib/context.rb'].each { |f| require_relative f }
+['./prompt.rb', './handle_args.rb', './help.rb', './context.rb'].each { |f| require_relative f }
 
-CONTEXT_PATH = File.expand_path(File.dirname(__FILE__)) + "/./files/context.jsonl"
-CONFIG_PATH = File.expand_path("./config/config.yml", __dir__)
+#CONTEXT_PATH = File.expand_path(File.dirname(__FILE__)) + "/./files/context.jsonl"
+CONTEXT_PATH = File.expand_path("./../files/context.jsonl", __dir__)
+CONFIG_PATH = File.expand_path("./../config/config.yml", __dir__)
 class Main
 
   def self.run()
     config = load_env()
   
-    ## Not secure to store API key in config.yml
     if config['OPENAI_API_KEY'].nil?
       puts "No API key found."
       Help.display_api_key()
@@ -23,22 +23,16 @@ class Main
     options = options_and_input.select { |k, v| k.start_with?("option_") }
     input = options_and_input["input"]
 
-    #puts "Options: #{options}"
-    #puts "Input: #{input}"
-
     halt_options = ["-h", "--help", "-v", "--version", "--install"]
 
     ## Hack... Need to fix this.
-    ## Descriped in README.md
     if options.empty?
-      ## No options given.
       options = { "option_0" => "simple" }
     end
 
     options.each do |k, v|
       if halt_options.include?(v)
         ## Options that halt the program.
-        #puts "Halt option: #{v}"
         case v
         when "-h", "--help"
           Help.display_help()
@@ -53,7 +47,7 @@ class Main
             exec("touch ./config/config.yml")
           end
           puts "Installing dependencies..."
-          #exec("bundle install")
+          exec("bundle install")
         else
           Help.display_help()
           exit

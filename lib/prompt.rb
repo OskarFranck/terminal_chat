@@ -1,11 +1,6 @@
 require "openai"
 
-#CONFIG_PATH = File.expand_path("../config/config.yml", __dir__)
 class Prompt
-
-  def self.tmp_test(input)
-    ## Let's keep this for tests without using the API
-  end
 
   ## Streams the response, VERY NICE
   def self.stream_prompt(input, conversation = '')
@@ -18,9 +13,9 @@ class Prompt
     response = ''
     client.chat(
       parameters: {
-        model: "gpt-3.5-turbo", # Required.
-        messages: [{ role: "user", content: conversation}], # Required. ## input is org, conversation is test
-        temperature: 0.7,
+        model: "gpt-3.5-turbo",
+        messages: [{ role: "user", content: conversation}],
+        temperature: 0.7, ## Should be a parameter
         stream: proc do |chunk, _bytesize|
           response += chunk.dig("choices", 0, "delta", "content") unless chunk.dig("choices", 0, "delta", "content").nil?
           print chunk.dig("choices", 0, "delta", "content")
@@ -32,18 +27,6 @@ class Prompt
       "response" => response,
     }
     return context
-  end
-
-  ## Remove? or implement
-  def self.reg_prompt(input)
-    response = client.chat(
-      parameters: {
-        model: "gpt-3.5-turbo",
-        messages: [{ role: "user", content: "In A VoIP / Phone context translate #{input} to Swedish? I only want the translated word or sentence as response"}],
-        temperature: 0.7,
-      }
-    )
-    puts response.dig("choices", 0, "message", "content")
   end
   
   ## There is yet no way to pass a general file to the API, only fine-tune
@@ -100,11 +83,6 @@ class Prompt
 
   private
 
-  def self.load_key()
-    conf = YAML.load(File.read(CONFIG_PATH))
-    return conf["OPENAI_API_KEY"]
-  end
-
   def self.warning(text)
     accept_warning = false
     while !accept_warning
@@ -124,7 +102,9 @@ class Prompt
   end
 
   def self.client()
-    key = load_key()
+    conf = YAML.load(File.read(CONFIG_PATH))
+    key = conf["OPENAI_API_KEY"]
+
     OpenAI::Client.new(access_token: key)
   end
 end

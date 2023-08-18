@@ -6,7 +6,6 @@ require 'yaml'
 
 CONTEXT_PATH = File.expand_path(File.dirname(__FILE__)) + "/./files/context.jsonl"
 CONFIG_PATH = File.expand_path("./config/config.yml", __dir__)
-ROOT_PATH = File.expand_path(File.dirname(__FILE__))
 class Main
 
   def self.run()
@@ -49,7 +48,7 @@ class Main
           exit
         when "-i", "--install"
           puts "Installing..."
-          exec("bundle install --path #{ROOT_PATH}")
+          exec("bundle install")
         else
           Help.display_help()
           exit

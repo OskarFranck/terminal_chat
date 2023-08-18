@@ -48,7 +48,12 @@ class Main
           exit
         when "-i", "--install"
           puts "Installing..."
-          exec("bundle install")
+          unless File.exist?(CONFIG_PATH)
+            puts 'Creating config.yml...'
+            exec("touch ./config/config.yml")
+          end
+          puts "Installing dependencies..."
+          #exec("bundle install")
         else
           Help.display_help()
           exit

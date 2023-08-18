@@ -1,6 +1,6 @@
 require "openai"
 
-CONFIG_PATH = File.expand_path("../config/config.yml", __dir__)
+#CONFIG_PATH = File.expand_path("../config/config.yml", __dir__)
 class Prompt
 
   def self.tmp_test(input)

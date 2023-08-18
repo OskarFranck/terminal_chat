@@ -15,7 +15,8 @@ class HandleArgs
     '--delete',
     '-c',
     '--conversation',
-    '--finetune'
+    '--finetune',
+    '--install'
   ]
 end
 

@@ -2,7 +2,7 @@ class Context
   ## Here we load the file that contains the context.
   ## This need to be parsed to something we can pass to the prompt.
 
-  CONTEXT_PATH = File.expand_path(File.dirname(__FILE__)) + "/../files/context.jsonl"
+#CONTEXT_PATH = File.expand_path(File.dirname(__FILE__)) + "/../files/context.jsonl"
   def self.load_context()
     conversation = File.readlines(CONTEXT_PATH).map { |line| JSON.parse(line) }
 

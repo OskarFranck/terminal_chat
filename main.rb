@@ -4,6 +4,9 @@ require 'fileutils'
 require 'yaml'
 ['./lib/prompt.rb', './lib/handle_args.rb', './lib/help.rb', './lib/context.rb'].each { |f| require_relative f }
 
+CONTEXT_PATH = File.expand_path(File.dirname(__FILE__)) + "/./files/context.jsonl"
+CONFIG_PATH = File.expand_path("./config/config.yml", __dir__)
+ROOT_PATH = File.expand_path(File.dirname(__FILE__))
 class Main
 
   def self.run()
@@ -24,7 +27,7 @@ class Main
     #puts "Options: #{options}"
     #puts "Input: #{input}"
 
-    halt_options = ["-h", "--help", "-v", "--version"]
+    halt_options = ["-h", "--help", "-v", "--version", "--install"]
 
     ## Hack... Need to fix this.
     ## Descriped in README.md
@@ -36,6 +39,7 @@ class Main
     options.each do |k, v|
       if halt_options.include?(v)
         ## Options that halt the program.
+        #puts "Halt option: #{v}"
         case v
         when "-h", "--help"
           Help.display_help()
@@ -43,6 +47,9 @@ class Main
         when "-v", "--version"
           Help.display_version()
           exit
+        when "-i", "--install"
+          puts "Installing..."
+          exec("bundle install --path #{ROOT_PATH}")
         else
           Help.display_help()
           exit
@@ -80,7 +87,7 @@ class Main
   private
 
   def self.load_env()
-    YAML.load(File.read("./config/config.yml"))
+    YAML.load(File.read(CONFIG_PATH))
   end
 end
 

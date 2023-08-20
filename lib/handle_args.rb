@@ -8,15 +8,17 @@ class HandleArgs
       '-h',
       '--help',
       '-v',
-    '--version',
-    '-f',
-    '--file',
-    '-d',
-    '--delete',
-    '-c',
-    '--conversation',
-    '--finetune',
-    '--install'
+      '--version',
+      '-f',
+      '--file',
+      '-d',
+      '--delete',
+      '-c',
+      '--conversation',
+      '--finetune',
+      '--install',
+      '-w', '--whisper',
+      '-t', '--translate',
   ]
 end
 

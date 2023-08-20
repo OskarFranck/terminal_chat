@@ -6,16 +6,17 @@ require 'yaml'
 
 #CONTEXT_PATH = File.expand_path(File.dirname(__FILE__)) + "/./files/context.jsonl"
 CONTEXT_PATH = File.expand_path("./../files/context.jsonl", __dir__)
+FILE_PATH = File.expand_path("./../files/", __dir__)
 CONFIG_PATH = File.expand_path("./../config/config.yml", __dir__)
 class Main
 
   def self.run()
     config = load_env()
-  
-    if config['OPENAI_API_KEY'].nil?
+ 
+    ## This does not work. Need to fix this.
+    if config.nil? || config['OPENAI_API_KEY'].nil?
       puts "No API key found."
       Help.display_api_key()
-      exit
     end
 
     context = Context.load_context()
@@ -44,7 +45,9 @@ class Main
           puts "Installing..."
           unless File.exist?(CONFIG_PATH)
             puts 'Creating config.yml...'
-            exec("touch ./config/config.yml")
+            exec("touch #{CONFIG_PATH}")
+            exec("echo 'OPENAI_API_KEY: ' >> #{CONFIG_PATH}")
+            #File.open(CONFIG_PATH, 'w') { |f| f.write("OPENAI_API_KEY: ") }
           end
           puts "Installing dependencies..."
           exec("bundle install")
@@ -68,6 +71,10 @@ class Main
           end
         when "-c", "--conversation"
           Context.save_context(Prompt.stream_prompt(input, context))
+        when "-w", "--whisper"
+          puts Prompt.whisper_transcribe(input)
+        when "-t", "--translate"
+          puts Prompt.whisper_translate(input)
         when "simple"
           if !input.nil?
             Prompt.stream_prompt(input)
@@ -86,6 +93,9 @@ class Main
 
   def self.load_env()
     YAML.load(File.read(CONFIG_PATH))
+
+  rescue Errno::ENOENT
+    puts "No config.yml found."
   end
 end
 

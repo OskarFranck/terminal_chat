@@ -3,7 +3,7 @@ require "openai"
 class Prompt
 
   ## Streams the response, VERY NICE
-  def self.stream_prompt(input, conversation = '')
+  def self.stream_prompt(input, conversation = '', temp = 0.7)
     if conversation.length == 0
       conversation += input
     else
@@ -15,7 +15,7 @@ class Prompt
       parameters: {
         model: "gpt-3.5-turbo",
         messages: [{ role: "user", content: conversation}],
-        temperature: 0.7, ## Should be a parameter
+        temperature: temp, ## Should be a parameter
         stream: proc do |chunk, _bytesize|
           response += chunk.dig("choices", 0, "delta", "content") unless chunk.dig("choices", 0, "delta", "content").nil?
           print chunk.dig("choices", 0, "delta", "content")
@@ -55,30 +55,40 @@ class Prompt
   def self.file_finetune()
     return
     client.files.upload(parameters: { file: "./test.json", purpose: "fine-tune" })
-    client.files.list
+    client.files.lisr
     client.files.retrieve(id: "file-123")
     client.files.content(id: "file-123")
     client.files.delete(id: "file-123")
   end
   ## Not implemented only scaffolding
-  def self.whisper_translate()
-    return
-    response = client.audio.translate(
-    parameters: {
-        model: "whisper-1",
-        file: File.open("path_to_file", "rb"),
-    })
-    puts response["text"]
+  def self.whisper_translate(path)
+    size = File.size(path).to_f / 2**20
+    if size > 24
+      warning("The file is above the maximum size of 25MB")
+      exit
+    else
+      response = client.audio.translate(
+      parameters: {
+          model: "whisper-1",
+          file: File.open(path, "rb"),
+      })
+      puts response["text"]
+    end
   end
   ## Not implemented only scaffolding
-  def self.whisper_transcribe()
-    return
-    response = client.audio.transcribe(
-    parameters: {
-        model: "whisper-1",
-        file: File.open("path_to_file", "rb"),
-    })
-    puts response["text"]
+  def self.whisper_transcribe(path)
+    size = File.size(path).to_f / 2**20
+    if size > 24
+      warning("The file is above the maximum size of 25MB, this may take")
+      exit
+    else
+      response = client.audio.transcribe(
+      parameters: {
+          model: "whisper-1",
+          file: File.open(path, "rb"),
+      })
+      puts response["text"]
+    end
   end
 
   private

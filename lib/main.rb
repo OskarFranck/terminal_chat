@@ -49,7 +49,9 @@ class Main
             File.open(CONFIG_PATH, 'w') { |f| f.write("OPENAI_API_KEY: ") }
           end
           puts "Installing dependencies..."
-          exec("bundle install")
+          puts "Don't forget to add a this function to bashrc or similar:"
+          puts "gpt () { for i in \"$*\"; do #{Dir.pwd}/lib/main.rb \"$i\"; done; }"
+          exec("bundle install --quiet")
         else
           Help.display_help()
           exit

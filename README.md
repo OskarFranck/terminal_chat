@@ -1,7 +1,7 @@
-## ChatGPT (openAI) in your terminal
+## ChatBOT (openAI) in your terminal
 
 #### Disclaimer
-Ad hoc created chatGPT cli tool. \
+Ad hoc created chatBOT cli tool. \
 Do you want standards, conventions and best practice? \
 Then this is not for you :angry:
 
@@ -10,7 +10,8 @@ Ruby installed \
 Api key from [OpenAI](https://platform.openai.com/overview)
 
 #### Installation
-Clone this repo \
+Clone this repo and run \
+```ruby terminal_chat/lib/main.rb --install``` \
 As of now you need to create a "bash" function that collect the args and runs the main file:
 ```
 gpt () { 
@@ -34,7 +35,7 @@ When you call gpt without flags like so: \
 This is just a single question to the bot. \
 When you call gpt with the conversation flag like so: \
 ```gpt -c I love pasta```  
-The bot will 'remeber' that you like pasta and the next prompt could be: \
+The bot will 'remember' that you like pasta and the next prompt could be: \
 ```gpt -c Give me a recipe of something i like``` \
 You will proboply get a pasta recipe because you said you love pasta. \
 \

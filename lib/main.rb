@@ -8,6 +8,7 @@ require 'yaml'
 CONTEXT_PATH = File.expand_path("./../files/context.jsonl", __dir__)
 FILE_PATH = File.expand_path("./../files/", __dir__)
 CONFIG_PATH = File.expand_path("./../config/config.yml", __dir__)
+CONTEXT_FILE_PATH = File.expand_path("./../files/context_file.txt", __dir__)
 class Main
 
   def self.run()
@@ -45,9 +46,7 @@ class Main
           puts "Installing..."
           unless File.exist?(CONFIG_PATH)
             puts 'Creating config.yml...'
-            exec("touch #{CONFIG_PATH}")
-            exec("echo 'OPENAI_API_KEY: ' >> #{CONFIG_PATH}")
-            #File.open(CONFIG_PATH, 'w') { |f| f.write("OPENAI_API_KEY: ") }
+            File.open(CONFIG_PATH, 'w') { |f| f.write("OPENAI_API_KEY: ") }
           end
           puts "Installing dependencies..."
           exec("bundle install")
@@ -59,9 +58,15 @@ class Main
         ## Options that don't halt the program.
         case v
         when "-f", "--file"
-          puts 'File'
-          file_path = input
-          puts Prompt.file_prompt(file_path)
+          file_as_string = Context.load_context_file()
+          if file_as_string.empty?
+            puts "No file found."
+            exit
+          end
+          Prompt.stream_prompt(input, file_as_string)
+        when "-lf", "--loadfile"
+          puts "Loading File #{input}"
+          Context.save_context_file(input)
         when "-d", "--delete"
           if input.nil?
             Context.delete_context()

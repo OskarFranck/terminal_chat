@@ -35,19 +35,19 @@ class Prompt
     #file = File.read(file_path)
     file = file_path
     puts "Reading file", file_path
-    accept_warning = false
+    #accept_warning = false
 
-    if file.length > 6000
-       accept_warning = warning("The file is longer than 6000 characters, this may take a while")
-    else 
-      accept_warning = true
-    end
+    #if file.length > 6
+    #   accept_warning = warning("The file is longer than 6000 characters, this may take a while")
+    #else 
+    #  accept_warning = true
+    #end
 
-    if accept_warning
-      ## Feed the file to the API
-    else
-      puts "Aborting"
-    end
+    #if accept_warning
+    #  ## Feed the file to the API
+    #else
+    #  puts "Aborting"
+    #end
     return file
   end
 
@@ -61,8 +61,8 @@ class Prompt
     client.files.delete(id: "file-123")
   end
   ## Not implemented only scaffolding
-  def self.whisper_translate(path)
-    size = File.size(path).to_f / 2**20
+  def self.whisper_translate(file_path)
+    size = File.size(file_path).to_f / 2**20
     if size > 24
       warning("The file is above the maximum size of 25MB")
       exit
@@ -70,14 +70,16 @@ class Prompt
       response = client.audio.translate(
       parameters: {
           model: "whisper-1",
-          file: File.open(path, "rb"),
+          file: File.open(file_path, "rb"),
       })
       puts response["text"]
     end
+  rescue Errno::ENOENT => e
+    puts "File not found"
   end
   ## Not implemented only scaffolding
-  def self.whisper_transcribe(path)
-    size = File.size(path).to_f / 2**20
+  def self.whisper_transcribe(file_path)
+    size = File.size(file_path).to_f / 2**20
     if size > 24
       warning("The file is above the maximum size of 25MB, this may take")
       exit
@@ -85,31 +87,33 @@ class Prompt
       response = client.audio.transcribe(
       parameters: {
           model: "whisper-1",
-          file: File.open(path, "rb"),
+          file: File.open(file_path, "rb"),
       })
       puts response["text"]
     end
+  rescue Errno::ENOENT => e
+    puts "File not found"
   end
 
   private
 
-  def self.warning(text)
-    accept_warning = false
-    while !accept_warning
-      puts "Warning: #{text}"
-      puts "Do you want to continue? (y)es / (n)o"
-      answer = gets.chomp
-      if answer == "y" || answer == "yes"
-        accept_warning = true
-        return true
-      elsif answer == "n" || answer == "no"
-        puts "Aborting"  
-        return false
-      else
-        puts "Please answer y or n"
-      end
-    end
-  end
+#  def self.warning(text)
+#    accept_warning = false
+#    while !accept_warning
+#      puts "Warning: #{text}"
+#      puts "Do you want to continue? (y)es / (n)o"
+#      answer = gets.chomp
+#      if answer == "y" || answer == "yes"
+#        accept_warning = true
+#        return true
+#      elsif answer == "n" || answer == "no"
+#        puts "Aborting"  
+#        return false
+#      else
+#        puts "Please answer y or n"
+#      end
+#    end
+#  end
 
   def self.client()
     conf = YAML.load(File.read(CONFIG_PATH))

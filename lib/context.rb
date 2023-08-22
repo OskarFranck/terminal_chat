@@ -37,4 +37,34 @@ class Context
     puts "Deleting previous context."
     File.truncate(CONTEXT_PATH, 0)
   end
+
+  def self.save_context_file(file_path)
+    file_in = File.open(file_path, 'r')
+    file_out = File.open(CONTEXT_FILE_PATH, 'w')
+    char_count = 0
+    file_in.each do |line|
+      char_count += line.length
+      file_out.write(line)
+    end
+
+    if char_count > 10000
+      puts "Warning: The file you are trying to feed to the API is #{char_count} characters long. This consumes a lot of tokens."
+    end
+
+  rescue Errno::ENOENT
+    puts "No file at '#{file_path}' found."
+  end
+
+  def self.load_context_file()
+    file = File.open(CONTEXT_FILE_PATH, 'r')
+    file_as_string = ""
+    file.each do |line|
+      file_as_string += line
+    end
+
+    return file_as_string
+  rescue Errno::ENOENT
+    puts "No file at '#{CONTEXT_FILE_PATH}' found."
+  end
+
 end

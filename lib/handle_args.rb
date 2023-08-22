@@ -11,6 +11,8 @@ class HandleArgs
       '--version',
       '-f',
       '--file',
+      '-lf',
+      '--loadfile',
       '-d',
       '--delete',
       '-c',

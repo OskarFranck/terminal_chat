@@ -3,6 +3,8 @@
 require 'fileutils'
 require 'yaml'
 require 'readline'
+require 'bcrypt'
+require 'io/console'
 [
   './prompt.rb',
   './handle_args.rb',
@@ -23,16 +25,19 @@ class Main
     if config.nil? || config['OPENAI_API_KEY'].nil?
       puts "No API key found."
       Help.display_api_key()
-      puts "If you have an API key you can set it here."
-      puts "Enter API key: (or press enter to exit)"
+      puts 'If you want to set your API key now, type (y)es and press enter.'
+      #puts "If you have an API key you can set it here."
+      #puts "Enter API key: (or press enter to exit)"
 
       while input = Readline.readline("> ", true) do
         if input.empty?
           puts "Exiting."
           exit
-        else
-          set_key(api_key: input)
+        elsif input == "y" || input == "yes" || input == "Y" || input == "Yes"
+          set_key()
           exit
+        else
+          puts 'Invalid input (y)es or press enter to exit.'
         end
       end
     end
@@ -130,8 +135,69 @@ class Main
 
   private
 
+  def self.set_key_v2(api_key: nil)
+    if api_key.nil?
+      puts "Setting API key..."
+      #puts "Enter API key: (or press enter to exit)"
+
+      valid = false
+      while !valid do
+        input = STDIN.getpass('API Key: ')
+        if input.empty?
+          puts 'Input cannot be empty.'
+        else
+          api_key = input.strip
+          valid = true
+        end
+      end
+
+      #while input = Readline.readline("> ", true) do
+      #  if input.empty?
+      #    puts "Exiting."
+      #    exit
+      #  else
+      #    api_key = input.strip
+      #    break
+      #  end
+      #end
+      puts "Saving API key..."
+    end
+
+    puts "Store API key in plain text? (y/n)"
+    while input = Readline.readline("> ", true) do
+      if input == "y"
+        break
+      elsif input == "n"
+        key = BCrypt::Password.create(api_key)
+        ekey = BCrypt::Password.new(key)
+        puts 'Enter password: '
+        password = STDIN.getpass('Password: ')
+        #while input = Readline.readline("> ", true) do
+        #  if input.empty?
+        #    puts "Password cannot be empty."
+        #  else
+        #    password = input.strip
+        #    break
+        #  end
+        #end
+        break
+      else
+        puts "Invalid input."
+      end
+    end
+    key = BCrypt::Password.create(api_key)
+    ekey = BCrypt::Password.new(key)
+
+    puts ekey
+    puts ekey == 'hejhej'
+
+    FileUtils.mkdir_p(File.dirname(CONFIG_PATH))
+    File.open(CONFIG_PATH, "w") do |f|
+      #f.write(YAML.dump({ "OPENAI_API_KEY" => api_key }))
+    end
+    puts "API key saved."
+  end
   def self.set_key(api_key: nil)
-    puts 'here'
     if api_key.nil?
       puts "Setting API key..."
       puts "Enter API key: (or press enter to exit)"
@@ -147,6 +213,7 @@ class Main
       end
       puts "Saving API key..."
     end
+
     FileUtils.mkdir_p(File.dirname(CONFIG_PATH))
     File.open(CONFIG_PATH, "w") do |f|
       f.write(YAML.dump({ "OPENAI_API_KEY" => api_key }))

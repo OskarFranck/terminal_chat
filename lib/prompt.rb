@@ -28,28 +28,6 @@ class Prompt
     }
     return context
   end
-  
-  ## There is yet no way to pass a general file to the API, only fine-tune
-  ## But we can transform the file to a string and pass it to the API
-  def self.file_prompt(file_path)
-    #file = File.read(file_path)
-    file = file_path
-    puts "Reading file", file_path
-    #accept_warning = false
-
-    #if file.length > 6
-    #   accept_warning = warning("The file is longer than 6000 characters, this may take a while")
-    #else 
-    #  accept_warning = true
-    #end
-
-    #if accept_warning
-    #  ## Feed the file to the API
-    #else
-    #  puts "Aborting"
-    #end
-    return file
-  end
 
   ## Not implemented only scaffolding
   def self.file_finetune()
@@ -60,36 +38,54 @@ class Prompt
     client.files.content(id: "file-123")
     client.files.delete(id: "file-123")
   end
-  ## Not implemented only scaffolding
+
   def self.whisper_translate(file_path)
-    size = File.size(file_path).to_f / 2**20
-    if size > 24
-      warning("The file is above the maximum size of 25MB")
+    if (file_path.nil? || !file_path.end_with?(*['.mp3', '.wav', '.m4a', '.webm', '.mpeg', '.mpga']))
+      puts "No file given or wrong file type"
       exit
     else
-      response = client.audio.translate(
-      parameters: {
-          model: "whisper-1",
-          file: File.open(file_path, "rb"),
-      })
-      puts response["text"]
+      size = File.size(file_path).to_f / 2**20
+      if size > 24
+        warning("The file is above the maximum size of 25MB")
+        exit
+      else
+        response = client.audio.translate(
+        parameters: {
+            model: "whisper-1",
+            file: File.open(file_path, "rb"),
+        })
+        if (response["text"].nil? || response["text"].empty?)
+          puts "No text found"
+          exit
+        end
+        puts response["text"]
+      end
     end
   rescue Errno::ENOENT => e
     puts "File not found"
   end
-  ## Not implemented only scaffolding
+
   def self.whisper_transcribe(file_path)
-    size = File.size(file_path).to_f / 2**20
-    if size > 24
-      warning("The file is above the maximum size of 25MB, this may take")
+    if (file_path.nil? || !file_path.end_with?(*['.mp3', '.wav', '.m4a', '.webm', '.mpeg', '.mpga']))
+      puts "No file given"
       exit
     else
-      response = client.audio.transcribe(
-      parameters: {
-          model: "whisper-1",
-          file: File.open(file_path, "rb"),
-      })
-      puts response["text"]
+      size = File.size(file_path).to_f / 2**20
+      if size > 24
+        warning("The file is above the maximum size of 25MB, this may take")
+        exit
+      else
+        response = client.audio.transcribe(
+        parameters: {
+            model: "whisper-1",
+            file: File.open(file_path, "rb"),
+        })
+        if (response["text"].nil? || response["text"].empty?)
+          puts "No text found"
+          exit
+        end
+        puts response["text"]
+      end
     end
   rescue Errno::ENOENT => e
     puts "File not found"

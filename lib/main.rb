@@ -62,8 +62,6 @@ class Main
         
         when "--key"
           set_key(api_key: nil)
-          ## Here we let the user configure the api key.
-          ## We could also fallback here if the api key is not set.
         else
           Help.display_help()
           exit
@@ -74,7 +72,6 @@ class Main
         when "-f", "--file"
           file_as_string = Context.load_context_file()
           if file_as_string.empty?
-            puts "No file found."
             exit
           end
           Prompt.stream_prompt(input, file_as_string)
@@ -97,6 +94,8 @@ class Main
           puts Prompt.whisper_translate(input)
         when "-i", "--interactive"
           puts "Interactive mode..."
+          puts "Type 'exit' or 'quit' to exit."
+          puts "Type 'clear' to clear context."
 
           while input = Readline.readline("\n> ", true) do
             if (input == "exit" || input == "quit")
@@ -135,7 +134,6 @@ class Main
     puts 'here'
     if api_key.nil?
       puts "Setting API key..."
-      ###
       puts "Enter API key: (or press enter to exit)"
 
       while input = Readline.readline("> ", true) do
@@ -147,7 +145,6 @@ class Main
           break
         end
       end
-      ###
       puts "Saving API key..."
     end
     FileUtils.mkdir_p(File.dirname(CONFIG_PATH))
@@ -164,6 +161,4 @@ class Main
     puts "No config.yml found."
   end
 end
-
-#Main.run()
 

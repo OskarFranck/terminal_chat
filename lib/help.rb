@@ -3,14 +3,16 @@ require 'rubygems'
 class Help
   def self.display_help()
     puts "Usage: aa [options] [input]"
-    puts "  -lf --loadfile: Load file into context"
+    puts "  -lf, --loadfile <path>: Load file into context"
     puts "  -f, --file: Read from context file"
-    ## Config?
     puts "  -c, --conversation: Append to conversation (max 10 Questions / Answers pairs saved)"
     puts "  -d, --delete: Delete conversation"
     puts "  -i, --interactive: Interactive mode, always a conversation. Clear context with 'clear' (exit with 'exit' or 'quit')"
+    puts "  -w, --whisper <path>: Transcribe audio file"
+    puts "  -t, --translate <path>: Translate audio file"
     puts "\n  Options:"
-    puts "    -version, --version: Display version"
+    puts "    --config: Edit config file"
+    puts "    -v, --version: Display version"
     puts "    -h, --help: Display this help message"
 
   end

@@ -1,7 +1,4 @@
 class Context
-  ## Here we load the file that contains the context.
-  ## This need to be parsed to something we can pass to the prompt.
-
   def self.load_context()
     conversation = File.readlines(CONTEXT_PATH).map { |line| JSON.parse(line) }
 
@@ -65,6 +62,8 @@ class Context
     return file_as_string
   rescue Errno::ENOENT
     puts "No file at '#{CONTEXT_FILE_PATH}' found."
+    puts "Load a file with 'aa -lf <file_path>'"
+    return ""
   end
 
 end

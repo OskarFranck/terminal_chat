@@ -97,24 +97,6 @@ class Prompt
 
   private
 
-#  def self.warning(text)
-#    accept_warning = false
-#    while !accept_warning
-#      puts "Warning: #{text}"
-#      puts "Do you want to continue? (y)es / (n)o"
-#      answer = gets.chomp
-#      if answer == "y" || answer == "yes"
-#        accept_warning = true
-#        return true
-#      elsif answer == "n" || answer == "no"
-#        puts "Aborting"  
-#        return false
-#      else
-#        puts "Please answer y or n"
-#      end
-#    end
-#  end
-
   def self.client()
     conf = YAML.load(File.read(CONFIG_PATH))
     key = conf["OPENAI_API_KEY"]

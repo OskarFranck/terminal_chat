@@ -1,2 +1,5 @@
 config/config.yml
 todo.md
+files/
+ask_ai-0.0.1.gem
+!files/.keep

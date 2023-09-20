@@ -1,6 +1,10 @@
 class Context
   def self.load_context()
-    conversation = File.readlines(CONTEXT_PATH).map { |line| JSON.parse(line) }
+    if File.exist?(CONTEXT_PATH)
+      conversation = File.readlines(CONTEXT_PATH).map { |line| JSON.parse(line) }
+    else
+      conversation = []
+    end
 
     if conversation.length > 0
       context_as_string = "This is our previous conversation:\n"
@@ -21,6 +25,9 @@ class Context
   ## Max 10 previous Q / A to save tokens.
   def self.save_context(context)
     tmp_arr = []
+    unless File.exist?(CONTEXT_PATH)
+      File.open(CONTEXT_PATH, "w") {}
+    end
     File.readlines(CONTEXT_PATH).map { |line| tmp_arr.push(JSON.parse(line)) }
     if tmp_arr.length > 9
       tmp_arr.shift()
@@ -36,18 +43,21 @@ class Context
   end
 
   def self.save_context_file(file_path)
-    file_in = File.open(file_path, 'r')
-    file_out = File.open(CONTEXT_FILE_PATH, 'w')
-    char_count = 0
-    file_in.each do |line|
-      char_count += line.length
-      file_out.write(line)
-    end
+    unless file_path.nil?
+      file_in = File.open(file_path, 'r')
+      file_out = File.open(CONTEXT_FILE_PATH, 'w')
+      char_count = 0
+      file_in.each do |line|
+        char_count += line.length
+        file_out.write(line)
+      end
 
-    if char_count > 10000
-      puts "Warning: The file you are trying to feed to the API is #{char_count} characters long. This consumes a lot of tokens."
+      if char_count > 10000
+        puts "Warning: The file you are trying to feed to the API is #{char_count} characters long. This consumes a lot of tokens."
+      end
+    else
+      puts "No file path given."
     end
-
   rescue Errno::ENOENT
     puts "No file at '#{file_path}' found."
   end

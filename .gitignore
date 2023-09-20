@@ -1,2 +1,5 @@
 config/config.yml
 todo.md
+files/context.jsonl
+files/context_file.txt
+ask_ai-0.0.1.gem

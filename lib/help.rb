@@ -1,12 +1,18 @@
+require 'rubygems'
+
 class Help
   def self.display_help()
-    puts "Usage: ./main.rb [options] [input]"
-    puts "  -f, --file: Read from file"
-    ## Config?
-    puts "  -c, --conversation: Append to conversation (max 10 Q / A saved)"
+    puts "Usage: aa [options] [input]"
+    puts "  -lf, --loadfile <path>: Load file into context"
+    puts "  -f, --file: Read from context file"
+    puts "  -c, --conversation: Append to conversation (max 10 Questions / Answers pairs saved)"
     puts "  -d, --delete: Delete conversation"
+    puts "  -i, --interactive: Interactive mode, always a conversation. Clear context with 'clear' (exit with 'exit' or 'quit')"
+    puts "  -w, --whisper <path>: Transcribe audio file"
+    puts "  -t, --translate <path>: Translate audio file"
     puts "\n  Options:"
-    puts "    -version, --version: Display version"
+    puts "    --config: Edit config file"
+    puts "    -v, --version: Display version"
     puts "    -h, --help: Display this help message"
 
   end
@@ -30,7 +36,8 @@ class Help
   end
 
   def self.display_version()
-    puts "Version: 0.1.0"
+    spec = Gem::Specification::load("aa.gemspec")
+    puts "Version: #{spec.version}"
   end
 
   def self.display_usage()

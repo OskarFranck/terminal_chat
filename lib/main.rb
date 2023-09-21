@@ -3,7 +3,6 @@
 require 'fileutils'
 require 'yaml'
 require 'readline'
-require 'bcrypt'
 require 'io/console'
 [
   './prompt.rb',

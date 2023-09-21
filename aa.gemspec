@@ -8,5 +8,8 @@ Gem::Specification.new do |s|
   # This includes all files under the lib directory recursively, so we don't have to add each one individually.
   s.files     = Dir.glob("{lib,bin,files,config}/**/*")
   s.require_path = 'lib'
+  s.add_dependency 'ruby-openai', '~> 5.1.0'
+  s.add_dependency 'bcrypt', '~> 3.1.16'
   s.executables = ['aa']
 end
+

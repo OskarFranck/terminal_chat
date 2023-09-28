@@ -23,7 +23,7 @@ This is buggy and does not work as intended.\
 For now Options 2 is the reliable way to setup the key.\
 
 Option 1:
-  run ``` aa -h ``` this will let you paste the key in the terminal and the program will save it.\
+  run ``` ask-ai -h ``` this will let you paste the key in the terminal and the program will save it.\
 
 Option 2:
   run ``` gem open ask-ai ``` find the file config/config.yml\
@@ -32,34 +32,34 @@ OPENAI_API_KEY: \<key>
 
 You can then use:
 ```
-aa [option] [input]
+ask-ai [option] [input]
 ``` 
 
 #### Usage
 
 You can interact in two ways, 'normal' or 'conversation'. \
-When you call aa without flags like so:
+When you call ask-ai without flags like so:
 ```
-aa Can you give me a simple pasta recipe?
+ask-ai Can you give me a simple pasta recipe?
 ``` 
 This is just a single question to the bot. \
-When you call aa with the conversation flag like so:
+When you call ask-ai with the conversation flag like so:
 ```
-aa -c I love pasta
+ask-ai -c I love pasta
 ```  
 The bot will 'remember' that you like pasta and the next prompt could be:
 ```
-aa -c Give me a recipe of something i like
+ask-ai -c Give me a recipe of something i like
 ```
 You will proboply get a pasta recipe because you said you love pasta. \
 You can delete the conversation with:
 ```
-aa -d OR aa -d "new question"
+ask-ai -d OR ask-ai -d "new question"
 ```
 
 You can also start an interactive session, This is always a conversation. (the context for '-c' and '-i' is shared)\
 ```
-aa -i 
+ask-ai -i 
 ```
 
 

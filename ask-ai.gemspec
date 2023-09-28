@@ -6,12 +6,11 @@ Gem::Specification.new do |s|
   s.authors = ["Oskar Franck"]
   s.email = "contact.oskarfranck.se"
   s.homepage = "https://github.com/OskarFranck/terminal_chat"
-  s.documentation = "https://github.com/OskarFranck/terminal_chat"
   s.license = "MIT"
   # This includes all files under the lib directory recursively, so we don't have to add each one individually.
   s.files     = Dir.glob("{lib,bin,files,config}/**/*")
   s.require_path = 'lib'
   s.add_dependency 'ruby-openai', '~> 5.1.0'
-  s.executables = ['aa']
+  s.executables = ['ask-ai']
 end
 

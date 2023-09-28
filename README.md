@@ -5,7 +5,8 @@ Ad hoc created chatBOT cli tool. \
 Do you want standards, conventions and best practice? \
 Then this is not for you :angry:
 
-This project is still a 'WIP'
+This project is still a 'WIP'\
+
 
 #### Prerequisites
 Ruby installed \
@@ -17,6 +18,10 @@ gem install ask-ai
 ```
 
 Configure your API key\
+
+This is buggy and does not work as intended.\
+For now Options 2 is the reliable way to setup the key.\
+
 Option 1:
   run ``` aa -h ``` this will let you paste the key in the terminal and the program will save it.\
 

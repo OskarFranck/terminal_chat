@@ -4,39 +4,33 @@ require 'fileutils'
 require 'yaml'
 require 'readline'
 require 'io/console'
-[
-  './prompt.rb',
-  './handle_args.rb',
-  './help.rb',
-  './context.rb'
-].each { |f| require_relative f }
+require './lib/logging.rb'
+require_relative './prompt.rb'
+require_relative './handle_args.rb'
+require_relative './help.rb'
+require_relative './context.rb'
+require_relative './files.rb'
 
-CONTEXT_PATH = File.expand_path("./../files/context.jsonl", __dir__)
-FILE_PATH = File.expand_path("./../files/", __dir__)
-CONFIG_PATH = File.expand_path("./../config/config.yml", __dir__)
-CONTEXT_FILE_PATH = File.expand_path("./../files/context_file.txt", __dir__)
 class Main
-
+  include Logging
+  include Files
   def self.run()
     config = load_env()
- 
-    ## This does not work. Need to fix this.
-    if config.nil? || config['OPENAI_API_KEY'].nil?
-      puts "No API key found."
-      Help.display_api_key()
-      puts 'If you want to set your API key now, type (y)es and press enter.'
-      #puts "If you have an API key you can set it here."
-      #puts "Enter API key: (or press enter to exit)"
 
+    ## This does not work. Need to fix this.
+    if config == false
+      Logging.log("No API key found.")
+      Help.display_api_key()
+      Logging.log('If you want to set your API key now, type (y)es and press enter.')
       while input = Readline.readline("> ", true) do
         if input.empty?
-          puts "Exiting."
+          Logging.log("Exiting.")
           exit
         elsif input == "y" || input == "yes" || input == "Y" || input == "Yes"
           set_key()
           exit
         else
-          puts 'Invalid input (y)es or press enter to exit.'
+          Logging.log('Invalid input (y)es or press enter to exit.')
         end
       end
     end
@@ -80,7 +74,7 @@ class Main
           end
           Prompt.stream_prompt(input, file_as_string)
         when "-lf", "--loadfile"
-          puts "Loading File #{input}"
+          Logging.log("Loading File #{input}")
           Context.save_context_file(input)
         when "-d", "--delete"
           if input.nil?
@@ -90,39 +84,57 @@ class Main
             Context.save_context(Prompt.stream_prompt(input, context))
           end
         when "-c", "--conversation"
-          puts input
+          Logging.log(input)
           Context.save_context(Prompt.stream_prompt(input, context))
         when "-w", "--whisper"
-          puts Prompt.whisper_transcribe(input)
+          Logging.log(Prompt.whisper_transcribe(input))
         when "-t", "--translate"
-          puts Prompt.whisper_translate(input)
+          Logging.log(Prompt.whisper_translate(input))
         when "-i", "--interactive"
-          puts "Interactive mode..."
-          puts "Type 'exit' or 'quit' to exit."
-          puts "Type 'clear' to clear context."
+          Logging.log("Interactive mode...")
+          Logging.log("Type 'exit' or 'quit' to exit.")
+          Logging.log("Type 'clear' to clear context.")
+          Logging.log("Type 'show' to show context.")
+          Logging.log("Type 'help' to show help.")
+          Logging.log("Type 'config' to change config.")
+          Logging.log("Type '-w' to whisper transcribe.")
+          Logging.log("Type '-t' to whisper translate.")
 
           while input = Readline.readline("\n> ", true) do
-            if (input == "exit" || input == "quit")
-              break
+            case input
+              when "exit", "quit"
+                break
+              when "clear"
+                Logging.log("Clearing context...")
+                Context.delete_context()
+              when "help"
+                #TODO: This should be a specific help for interactive. 
+                Help.display_help()
+              when "show"
+                Logging.log("\n")
+                Logging.log(Context.load_context())
+              when /^-w/ 
+                stript_input = input.sub(/^-w/, "").strip
+                Logging.log(Prompt.whisper_transcribe(stript_input, interactive: true))
+              when /^-t/
+                stript_input = input.sub(/^-t/, "").strip
+                Logging.log(Prompt.whisper_translate(stript_input, interactive: true))
+              when "config"
+                set_key(api_key: nil)
+              else
+                #options_and_input = HandleArgs.handle_args()
+                context = Context.load_context()
+                Logging.log("")
+                Context.save_context(Prompt.stream_prompt(input, context))
+                Logging.log("")
             end
-            if input == "clear"
-              puts "Clearing context..."
-              Context.delete_context()
-              next
-            end
-            options_and_input = HandleArgs.handle_args()
-            context = Context.load_context()
-            puts "\n"
-            Context.save_context(Prompt.stream_prompt(input, context))
-            puts "\n"
           end
-          puts "Exiting..."
-          #Context.delete_context()
+          Logging.log("Exiting...")
         when "simple"
           if !input.nil?
             Prompt.stream_prompt(input)
           else
-            puts "No input given."
+            Logging.log("No input given.")
             Help.display_help()
           end
         else
@@ -136,33 +148,33 @@ class Main
 
   def self.set_key(api_key: nil)
     if api_key.nil?
-      puts "Setting API key..."
-      puts "Enter API key: (or press enter to exit)"
+      Logging.log("Setting API key...")
+      Logging.log("Enter API key: (or press enter to exit)")
 
       while input = Readline.readline("> ", true) do
         if input.empty?
-          puts "Exiting."
+          Logging.log("Exiting.")
           exit
         else
           api_key = input.strip
           break
         end
       end
-      puts "Saving API key..."
+      Logging.log("Saving API key...")
     end
 
-    FileUtils.mkdir_p(File.dirname(CONFIG_PATH))
-    File.open(CONFIG_PATH, "w") do |f|
+    FileUtils.mkdir_p(File.dirname(Files.config_path))
+    File.open(Files.config_path, "w") do |f|
       f.write(YAML.dump({ "OPENAI_API_KEY" => api_key }))
     end
-    puts "API key saved."
+    Logging.log("API key saved.")
   end
 
   def self.load_env()
-    YAML.load(File.read(CONFIG_PATH))
+    YAML.load(File.read(Files.config_path))
 
   rescue Errno::ENOENT
-    puts "No config.yml found."
+    Logging.log("No config.yml found.")
   end
 end
 

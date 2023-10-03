@@ -1,4 +1,4 @@
-class HandleArgs 
+class HandleArgs
   def self.permitted_options()
     ## TODO: Add more options.
     ## -t --translate
@@ -32,18 +32,18 @@ end
 
     ## This handles args then called as ruby script.
     ARGV.each_with_index do |arg, i|
-      #puts "Arg: #{arg}"
+      #Logging.log("Arg: #{arg}")
 
       if arg.start_with?('-')
         ## This is an option.
         if p_args.include?(arg)
           ## This is a permitted / available option.
-          #puts "Option: #{arg}"
+          #Logging.log("Option: #{arg}")
           args_hash["option_#{i}"] = arg
         else
           ## This is an unknown option.
           ## TODO: Handle unknown option. display help? discard?
-          puts "Unknown option: #{arg}"
+          Logging.log("Unknown option: #{arg}")
           args_hash["option_#{i}"] = arg
         end
       else

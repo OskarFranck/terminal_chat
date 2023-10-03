@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = "ask-ai"
-  s.version = "0.0.1"
+  s.version = "0.0.3"
   s.summary = "A simple CLI for OpenAI's GPT-3 API."
   s.description = "A CLI tool for using OpenAI's API. The idea is to make it easy to use the API with an option to pass files for help with diffrent tasks."
   s.authors = ["Oskar Franck"]

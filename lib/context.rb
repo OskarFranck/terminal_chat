@@ -1,7 +1,10 @@
+require_relative './files.rb'
+
 class Context
+  include Files
   def self.load_context()
-    if File.exist?(CONTEXT_PATH)
-      conversation = File.readlines(CONTEXT_PATH).map { |line| JSON.parse(line) }
+    if File.exist?(Files.context_path)
+      conversation = File.readlines(Files.context_path).map { |line| JSON.parse(line) }
     else
       conversation = []
     end
@@ -25,27 +28,27 @@ class Context
   ## Max 10 previous Q / A to save tokens.
   def self.save_context(context)
     tmp_arr = []
-    unless File.exist?(CONTEXT_PATH)
-      File.open(CONTEXT_PATH, "w") {}
+    unless File.exist?(Files.context_path)
+      File.open(Files.context_path, "w") {}
     end
-    File.readlines(CONTEXT_PATH).map { |line| tmp_arr.push(JSON.parse(line)) }
+    File.readlines(Files.context_path).map { |line| tmp_arr.push(JSON.parse(line)) }
     if tmp_arr.length > 9
       tmp_arr.shift()
     end
-    File.truncate(CONTEXT_PATH, 0)
-    tmp_arr.each { |line| File.open(CONTEXT_PATH, "a") { |file| file.write("#{line.to_json}\n") } }
-    File.open(CONTEXT_PATH, "a") { |file| file.write("#{context.to_json}\n") }
+    File.truncate(Files.context_path, 0)
+    tmp_arr.each { |line| File.open(Files.context_path, "a") { |file| file.write("#{line.to_json}\n") } }
+    File.open(Files.context_path, "a") { |file| file.write("#{context.to_json}\n") }
   end
 
   def self.delete_context()
-    puts "Deleting previous context."
-    File.truncate(CONTEXT_PATH, 0)
+    Logging.log("Deleting previous context.")
+    File.truncate(Files.context_path, 0)
   end
 
   def self.save_context_file(file_path)
     unless file_path.nil?
       file_in = File.open(file_path, 'r')
-      file_out = File.open(CONTEXT_FILE_PATH, 'w')
+      file_out = File.open(Files.context_file_path, 'w')
       char_count = 0
       file_in.each do |line|
         char_count += line.length
@@ -53,17 +56,17 @@ class Context
       end
 
       if char_count > 10000
-        puts "Warning: The file you are trying to feed to the API is #{char_count} characters long. This consumes a lot of tokens."
+        Logging.log("Warning: The file you are trying to feed to the API is #{char_count} characters long. This consumes a lot of tokens.")
       end
     else
-      puts "No file path given."
+      Logging.log("No file path given.")
     end
   rescue Errno::ENOENT
-    puts "No file at '#{file_path}' found."
+    Logging.log("No file at '#{file_path}' found.")
   end
 
   def self.load_context_file()
-    file = File.open(CONTEXT_FILE_PATH, 'r')
+    file = File.open(Files.context_file_path, 'r')
     file_as_string = ""
     file.each do |line|
       file_as_string += line
@@ -71,8 +74,8 @@ class Context
 
     return file_as_string
   rescue Errno::ENOENT
-    puts "No file at '#{CONTEXT_FILE_PATH}' found."
-    puts "Load a file with 'aa -lf <file_path>'"
+    Logging.log("No file at '#{Files.context_file_path}' found.")
+    Logging.log("Load a file with 'aa -lf <file_path>'")
     return ""
   end
 

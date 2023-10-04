@@ -7,6 +7,9 @@ class Prompt
   include Config
   ## Streams the response, VERY NICE
   def self.stream_prompt(input, conversation = '', temp = Config.load_temperature())
+    if temp.nil?
+      temp = 0.7
+    end
     if conversation.length == 0
       conversation += input
     else

@@ -187,6 +187,7 @@ class Main
   end
 
   def self.load_env()
+    #Config.load_key()
     YAML.load(File.read(Files.config_path))
 
   rescue Errno::ENOENT

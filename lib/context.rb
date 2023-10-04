@@ -32,7 +32,8 @@ class Context
       File.open(Files.context_path, "w") {}
     end
     File.readlines(Files.context_path).map { |line| tmp_arr.push(JSON.parse(line)) }
-    if tmp_arr.length > Config.load_context_length()
+    length = Config.load_context_length().nil? ? 10 : Config.load_context_length()
+    if tmp_arr.length > length
       tmp_arr.shift()
     end
     File.truncate(Files.context_path, 0)

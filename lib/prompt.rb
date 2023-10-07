@@ -1,10 +1,15 @@
 require "openai"
 require_relative './files.rb'
+require_relative './config.rb'
 
 class Prompt
   include Files
+  include Config
   ## Streams the response, VERY NICE
-  def self.stream_prompt(input, conversation = '', temp = 0.7)
+  def self.stream_prompt(input, conversation = '', temp = Config.load_temperature())
+    if temp.nil?
+      temp = 0.7
+    end
     if conversation.length == 0
       conversation += input
     else

@@ -10,15 +10,16 @@ require_relative './handle_args.rb'
 require_relative './help.rb'
 require_relative './context.rb'
 require_relative './files.rb'
+require_relative './config.rb'
 
 class Main
-  include Logging
-  include Files
+  include Logging, Files, Config
+
   def self.run()
     config = load_env()
 
     ## This does not work. Need to fix this.
-    if config == false
+    if (config == false || config.nil?)
       Logging.log("No API key found.")
       Help.display_api_key()
       Logging.log('If you want to set your API key now, type (y)es and press enter.')
@@ -28,7 +29,7 @@ class Main
           exit
         elsif input == "y" || input == "yes" || input == "Y" || input == "Yes"
           set_key()
-          exit
+          break
         else
           Logging.log('Invalid input (y)es or press enter to exit.')
         end
@@ -92,14 +93,7 @@ class Main
           Logging.log(Prompt.whisper_translate(input))
         when "-i", "--interactive"
           Logging.log("Interactive mode...")
-          Logging.log("Type 'exit' or 'quit' to exit.")
-          Logging.log("Type 'clear' to clear context.")
-          Logging.log("Type 'show' to show context.")
-          Logging.log("Type 'help' to show help.")
-          Logging.log("Type 'config' to change config.")
-          Logging.log("Type '-w' to whisper transcribe.")
-          Logging.log("Type '-t' to whisper translate.")
-
+          Help.interactive_desc()
           while input = Readline.readline("\n> ", true) do
             case input
               when "exit", "quit"
@@ -107,9 +101,12 @@ class Main
               when "clear"
                 Logging.log("Clearing context...")
                 Context.delete_context()
-              when "help"
+              when 'help'
+                Help.interactive_desc()
+              when /^help/
+                strip_input = input.sub(/^help/, "").strip
                 #TODO: This should be a specific help for interactive. 
-                Help.display_help()
+                Help.interactive_help(strip_input)
               when "show"
                 Logging.log("\n")
                 Logging.log(Context.load_context())
@@ -119,8 +116,26 @@ class Main
               when /^-t/
                 stript_input = input.sub(/^-t/, "").strip
                 Logging.log(Prompt.whisper_translate(stript_input, interactive: true))
-              when "config"
-                set_key(api_key: nil)
+              when /^-lf/
+                stript_input = input.sub(/^-lf/, "").strip
+                Logging.log("Loading File #{stript_input}")
+                Context.save_context_file(stript_input)
+              when /^-f/
+                stript_input = input.sub(/^-f/, "").strip
+                file_as_string = Context.load_context_file()
+                if file_as_string.empty?
+                  Logging.log("No file loaded.")
+                  next
+                end
+                Logging.log("")
+                Prompt.stream_prompt(stript_input, file_as_string)
+                Logging.log("")
+              when ""
+                Logging.log("No input given.")
+              when /^config/
+                strip_input = input.sub(/^config/, "").strip
+                Config.set_config(strip_input)
+                #set_key(api_key: nil)
               else
                 #options_and_input = HandleArgs.handle_args()
                 context = Context.load_context()
@@ -168,9 +183,11 @@ class Main
       f.write(YAML.dump({ "OPENAI_API_KEY" => api_key }))
     end
     Logging.log("API key saved.")
+    Logging.log("")
   end
 
   def self.load_env()
+    #Config.load_key()
     YAML.load(File.read(Files.config_path))
 
   rescue Errno::ENOENT

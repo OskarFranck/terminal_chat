@@ -1,7 +1,7 @@
 require_relative './files.rb'
-
+require_relative './config.rb'
 class Context
-  include Files
+  include Files, Config
   def self.load_context()
     if File.exist?(Files.context_path)
       conversation = File.readlines(Files.context_path).map { |line| JSON.parse(line) }
@@ -32,7 +32,8 @@ class Context
       File.open(Files.context_path, "w") {}
     end
     File.readlines(Files.context_path).map { |line| tmp_arr.push(JSON.parse(line)) }
-    if tmp_arr.length > 9
+    length = Config.load_context_length().nil? ? 10 : Config.load_context_length()
+    if tmp_arr.length > length
       tmp_arr.shift()
     end
     File.truncate(Files.context_path, 0)
@@ -46,14 +47,18 @@ class Context
   end
 
   def self.save_context_file(file_path)
+    puts "File path: #{file_path}"
     unless file_path.nil?
       file_in = File.open(file_path, 'r')
       file_out = File.open(Files.context_file_path, 'w')
       char_count = 0
       file_in.each do |line|
+        puts "Line: #{line}"
         char_count += line.length
         file_out.write(line)
       end
+      file_in.close
+      file_out.close
 
       if char_count > 10000
         Logging.log("Warning: The file you are trying to feed to the API is #{char_count} characters long. This consumes a lot of tokens.")

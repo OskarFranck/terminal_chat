@@ -45,4 +45,41 @@ class Help
 
     Logging.log("There are two types of options, flags and arguments.")
   end
+
+  def self.interactive_help(command)
+    case command
+    when '-w'
+      Logging.log("Ex: -w /home/name/sound_file.m4a")
+      Logging.log("Will transcribe the audio file.")
+    when '-t'
+      Logging.log("Ex: -t /home/name/sound_file.m4a")
+      Logging.log("Will translate the audio file to English.")
+    when '-lf'
+      Logging.log("Ex: -lf /home/name/some_text_file.txt'")
+      Logging.log("Will load the file into context.")
+      Logging.log("The file should a [txt, CSV]. More formats coming soon.")
+    when '-f'
+      Logging.log("Ex: -f Can you describe the file i provided?")
+    when 'config'
+      Logging.log("Ex: config key <your API key>")
+      Logging.log("Ex: config temp <0.0 - 1.0>")
+      Logging.log("Ex: config context <0 - 100>")
+      Logging.log("Beaware that the more context you use, the more expensive it will be.")
+    else
+      Logging.log("No help for: #{command}")
+    end
+
+  end
+
+  def self.interactive_desc()
+    Logging.log("Type 'exit' or 'quit' to exit.")
+    Logging.log("Type 'clear' to clear context.")
+    Logging.log("Type 'show' to show context.")
+    Logging.log("Type 'help' to show help.")
+    Logging.log("Type 'config [key, temp, context]' to change config.")
+    Logging.log("Type '-w <filepath>' to whisper transcribe.")
+    Logging.log("Type '-t' <filepath> to whisper translate.")
+    Logging.log("Type '-lf' <filepath> to load file.")
+    Logging.log("Type '-f' to use loaded file as context.")
+  end
 end

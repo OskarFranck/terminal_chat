@@ -19,8 +19,6 @@ class Main
   ].sort
 
   def self.run()
-    load_config()
- 
 
     ## When using Readline, TAB will auto-complete
     ## But it will only auto-complete from the LIST

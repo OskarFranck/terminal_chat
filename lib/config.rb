@@ -9,6 +9,9 @@ module Config
 
   def save_key(api_key)
     config = YAML.load_file(config_path)
+    if config == false
+      config = {}
+    end
     config['OPENAI_API_KEY'] = api_key
     File.open(config_path, 'w') { |f| YAML.dump(config, f) }
   end
@@ -22,6 +25,9 @@ module Config
 
   def save_temperature(temperature)
     config = YAML.load_file(config_path)
+    if config == false
+      config = {}
+    end
     config['TEMPERATURE'] = temperature.to_f
     File.open(config_path, 'w') { |f| YAML.dump(config, f) }
   end
@@ -35,6 +41,9 @@ module Config
 
   def save_context_length(context_length)
     config = YAML.load_file(config_path)
+    if config == false
+      config = {}
+    end
     config['CONTEXT_LENGTH'] = context_length.to_i
     File.open(config_path, 'w') { |f| YAML.dump(config, f) }
   end
@@ -89,10 +98,6 @@ module Config
     end
     log("API key saved.")
     log("")
-  end
-
-  def load_config()
-
   end
 
   def load_env()

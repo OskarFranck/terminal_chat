@@ -3,10 +3,9 @@ require_relative './files.rb'
 require_relative './config.rb'
 
 class Prompt
-  include Files
-  include Config
+  extend Files, Config, Logging
   ## Streams the response, VERY NICE
-  def self.stream_prompt(input, conversation = '', temp = Config.load_temperature())
+  def self.stream_prompt(input, conversation = '', temp = load_temperature())
     if temp.nil?
       temp = 0.7
     end
@@ -16,23 +15,25 @@ class Prompt
       conversation += "\n My question: #{input}"
     end
     response = ''
-    client.chat(
-      parameters: {
-        model: "gpt-3.5-turbo",
-        messages: [{ role: "user", content: conversation}],
-        temperature: temp, ## Should be a parameter
-        stream: proc do |chunk, _bytesize|
-          response += chunk.dig("choices", 0, "delta", "content") unless chunk.dig("choices", 0, "delta", "content").nil?
-          print chunk.dig("choices", 0, "delta", "content")
-        end
+    unless client.nil?
+      client.chat(
+        parameters: {
+          model: "gpt-3.5-turbo",
+          messages: [{ role: "user", content: conversation}],
+          temperature: temp, ## Should be a parameter
+          stream: proc do |chunk, _bytesize|
+            response += chunk.dig("choices", 0, "delta", "content") unless chunk.dig("choices", 0, "delta", "content").nil?
+            print chunk.dig("choices", 0, "delta", "content")
+          end
+        }
+      )
+      context = {
+        "input" => input,
+        "response" => response,
       }
-    )
-    context = {
-      "input" => input,
-      "response" => response,
-    }
 
-    return context
+      return context
+    end
   end
 
   ## Not implemented only scaffolding
@@ -47,7 +48,7 @@ class Prompt
 
   def self.whisper_translate(file_path, interactive = false)
     if (file_path.nil? || !file_path.end_with?(*['.mp3', '.wav', '.m4a', '.webm', '.mpeg', '.mpga']))
-      Logging.log("No file given or wrong file type")
+      log("No file given or wrong file type")
       unless interactive
         exit
       end
@@ -65,7 +66,7 @@ class Prompt
             file: File.open(file_path, "rb"),
         })
         if (response["text"].nil? || response["text"].empty?)
-          Logging.log("No text found")
+          log("No text found")
           unless interactive
             exit
           end
@@ -74,12 +75,12 @@ class Prompt
       end
     end
   rescue Errno::ENOENT => e
-    Logging.log(e)
+    log(e)
   end
 
   def self.whisper_transcribe(file_path, interactive = false)
     if (file_path.nil? || !file_path.end_with?(*['.mp3', '.wav', '.m4a', '.webm', '.mpeg', '.mpga']))
-      Logging.log("No file given")
+      log("No file given")
       unless interactive
         exit
       end
@@ -97,7 +98,7 @@ class Prompt
             file: File.open(file_path, "rb"),
         })
         if (response["text"].nil? || response["text"].empty?)
-          Logging.log("No text found")
+          log("No text found")
           unless interactive
             exit
           end
@@ -107,15 +108,19 @@ class Prompt
     end
   rescue Errno::ENOENT => e
     #Logging.log("File not found")
-    Logging.log(e)
+    log(e)
   end
 
   private
 
   def self.client()
-    conf = YAML.load(File.read(Files.config_path))
+    conf = YAML.load(File.read(config_path))
     key = conf["OPENAI_API_KEY"]
-
-    OpenAI::Client.new(access_token: key)
+    begin
+      OpenAI::Client.new(access_token: key)
+    rescue OpenAI::ConfigurationError => e
+      log("OpenAI API key not found, run 'config key' to set it")
+      return nil
+    end
   end
 end

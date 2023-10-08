@@ -6,192 +6,79 @@ require 'readline'
 require 'io/console'
 require_relative './logging.rb'
 require_relative './prompt.rb'
-require_relative './handle_args.rb'
 require_relative './help.rb'
 require_relative './context.rb'
 require_relative './files.rb'
 require_relative './config.rb'
 
 class Main
-  include Logging, Files, Config
+  extend Logging, Files, Config
+  LIST = [
+    "exit", "quit", "version", "clear", "help", "show",
+    "-w", "-t", "-lf", "-f", "config", "temp", "context"
+  ].sort
 
   def self.run()
-    config = load_env()
+    load_config()
+ 
 
-    ## This does not work. Need to fix this.
-    if (config == false || config.nil?)
-      Logging.log("No API key found.")
-      Help.display_api_key()
-      Logging.log('If you want to set your API key now, type (y)es and press enter.')
-      while input = Readline.readline("> ", true) do
-        if input.empty?
-          Logging.log("Exiting.")
-          exit
-        elsif input == "y" || input == "yes" || input == "Y" || input == "Yes"
-          set_key()
-          break
-        else
-          Logging.log('Invalid input (y)es or press enter to exit.')
+    comp = proc { |s| LIST.grep(/^#{Regexp.escape(s)}/) }
+    Readline.completion_append_character = ""
+    Readline.completion_proc = comp
+
+    Help.interactive_desc()
+    while input = Readline.readline("\n> ", true) do
+      case input
+      when "exit", "quit"
+        break
+      when "version"
+        Help.display_version()
+      when "clear"
+        log("Clearing context...")
+        Context.delete_context()
+      when 'help'
+        Help.interactive_desc()
+      when /^help/
+        strip_input = input.sub(/^help/, "").strip
+        Help.interactive_help(strip_input)
+      when "show"
+        log("\n")
+        log(Context.load_context())
+      when /^-w/ 
+        stript_input = input.sub(/^-w/, "").strip
+        log(Prompt.whisper_transcribe(stript_input, interactive: true))
+      when /^-t/
+        stript_input = input.sub(/^-t/, "").strip
+        log(Prompt.whisper_translate(stript_input, interactive: true))
+      when /^-lf/
+        stript_input = input.sub(/^-lf/, "").strip
+        log("Loading File #{stript_input}")
+        Context.save_context_file(stript_input)
+      when /^-f/
+        stript_input = input.sub(/^-f/, "").strip
+        file_as_string = Context.load_context_file()
+        if file_as_string.empty?
+          log("No file loaded.")
+          next
         end
-      end
-    end
-
-    context = Context.load_context()
-    options_and_input = HandleArgs.handle_args()
-    options = options_and_input.select { |k, v| k.start_with?("option_") }
-    input = options_and_input["input"]
-
-    halt_options = ["-h", "--help", "-v", "--version", "--key"]
-
-    ## Hack... Need to fix this.
-    if options.empty?
-      options = { "option_0" => "simple" }
-    end
-
-    options.each do |k, v|
-      if halt_options.include?(v)
-        ## Options that halt the program.
-        case v
-        when "-h", "--help"
-          Help.display_help()
-          exit
-        when "-v", "--version"
-          Help.display_version()
-          exit
-        
-        when "--key"
-          set_key(api_key: nil)
-        else
-          Help.display_help()
-          exit
+        log("")
+        Prompt.stream_prompt(stript_input, file_as_string)
+        log("")
+      when ""
+        log("No input given.")
+      when /^config/
+        strip_input = input.sub(/^config/, "").strip
+        res = set_config(strip_input)
+        if res.is_a?(String)
+          log(res)
         end
       else
-        ## Options that don't halt the program.
-        case v
-        when "-f", "--file"
-          file_as_string = Context.load_context_file()
-          if file_as_string.empty?
-            exit
-          end
-          Prompt.stream_prompt(input, file_as_string)
-        when "-lf", "--loadfile"
-          Logging.log("Loading File #{input}")
-          Context.save_context_file(input)
-        when "-d", "--delete"
-          if input.nil?
-            Context.delete_context()
-          else
-            Context.delete_context()
-            Context.save_context(Prompt.stream_prompt(input, context))
-          end
-        when "-c", "--conversation"
-          Logging.log(input)
-          Context.save_context(Prompt.stream_prompt(input, context))
-        when "-w", "--whisper"
-          Logging.log(Prompt.whisper_transcribe(input))
-        when "-t", "--translate"
-          Logging.log(Prompt.whisper_translate(input))
-        when "-i", "--interactive"
-          Logging.log("Interactive mode...")
-          Help.interactive_desc()
-          while input = Readline.readline("\n> ", true) do
-            case input
-              when "exit", "quit"
-                break
-              when "clear"
-                Logging.log("Clearing context...")
-                Context.delete_context()
-              when 'help'
-                Help.interactive_desc()
-              when /^help/
-                strip_input = input.sub(/^help/, "").strip
-                #TODO: This should be a specific help for interactive. 
-                Help.interactive_help(strip_input)
-              when "show"
-                Logging.log("\n")
-                Logging.log(Context.load_context())
-              when /^-w/ 
-                stript_input = input.sub(/^-w/, "").strip
-                Logging.log(Prompt.whisper_transcribe(stript_input, interactive: true))
-              when /^-t/
-                stript_input = input.sub(/^-t/, "").strip
-                Logging.log(Prompt.whisper_translate(stript_input, interactive: true))
-              when /^-lf/
-                stript_input = input.sub(/^-lf/, "").strip
-                Logging.log("Loading File #{stript_input}")
-                Context.save_context_file(stript_input)
-              when /^-f/
-                stript_input = input.sub(/^-f/, "").strip
-                file_as_string = Context.load_context_file()
-                if file_as_string.empty?
-                  Logging.log("No file loaded.")
-                  next
-                end
-                Logging.log("")
-                Prompt.stream_prompt(stript_input, file_as_string)
-                Logging.log("")
-              when ""
-                Logging.log("No input given.")
-              when /^config/
-                strip_input = input.sub(/^config/, "").strip
-                Config.set_config(strip_input)
-                #set_key(api_key: nil)
-              else
-                #options_and_input = HandleArgs.handle_args()
-                context = Context.load_context()
-                Logging.log("")
-                Context.save_context(Prompt.stream_prompt(input, context))
-                Logging.log("")
-            end
-          end
-          Logging.log("Exiting...")
-        when "simple"
-          if !input.nil?
-            Prompt.stream_prompt(input)
-          else
-            Logging.log("No input given.")
-            Help.display_help()
-          end
-        else
-          Help.display_help()
-        end
+        context = Context.load_context()
+        log("")
+        Context.save_context(Prompt.stream_prompt(input, context))
+        log("")
       end
     end
-  end
-
-  private
-
-  def self.set_key(api_key: nil)
-    if api_key.nil?
-      Logging.log("Setting API key...")
-      Logging.log("Enter API key: (or press enter to exit)")
-
-      while input = Readline.readline("> ", true) do
-        if input.empty?
-          Logging.log("Exiting.")
-          exit
-        else
-          api_key = input.strip
-          break
-        end
-      end
-      Logging.log("Saving API key...")
-    end
-
-    FileUtils.mkdir_p(File.dirname(Files.config_path))
-    File.open(Files.config_path, "w") do |f|
-      f.write(YAML.dump({ "OPENAI_API_KEY" => api_key }))
-    end
-    Logging.log("API key saved.")
-    Logging.log("")
-  end
-
-  def self.load_env()
-    #Config.load_key()
-    YAML.load(File.read(Files.config_path))
-
-  rescue Errno::ENOENT
-    Logging.log("No config.yml found.")
   end
 end
 

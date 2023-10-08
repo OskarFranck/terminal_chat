@@ -60,18 +60,20 @@ class Prompt
           exit
         end
       else
-        response = client.audio.translate(
-        parameters: {
-            model: "whisper-1",
-            file: File.open(file_path, "rb"),
-        })
-        if (response["text"].nil? || response["text"].empty?)
-          log("No text found")
-          unless interactive
-            exit
+        unless client.nil?
+          response = client.audio.translate(
+          parameters: {
+              model: "whisper-1",
+              file: File.open(file_path, "rb"),
+          })
+          if (response["text"].nil? || response["text"].empty?)
+            log("No text found")
+            unless interactive
+              exit
+            end
           end
+          return response["text"]
         end
-        return response["text"]
       end
     end
   rescue Errno::ENOENT => e
@@ -92,18 +94,20 @@ class Prompt
           exit
         end
       else
-        response = client.audio.transcribe(
-        parameters: {
-            model: "whisper-1",
-            file: File.open(file_path, "rb"),
-        })
-        if (response["text"].nil? || response["text"].empty?)
-          log("No text found")
-          unless interactive
-            exit
+        unless client.nil?
+          response = client.audio.transcribe(
+          parameters: {
+              model: "whisper-1",
+              file: File.open(file_path, "rb"),
+          })
+          if (response["text"].nil? || response["text"].empty?)
+            log("No text found")
+            unless interactive
+              exit
+            end
           end
+          return response["text"]
         end
-        return response["text"]
       end
     end
   rescue Errno::ENOENT => e
@@ -115,7 +119,10 @@ class Prompt
 
   def self.client()
     conf = YAML.load(File.read(config_path))
-    key = conf["OPENAI_API_KEY"]
+    unless conf == false
+      key = conf["OPENAI_API_KEY"]
+    end
+
     begin
       OpenAI::Client.new(access_token: key)
     rescue OpenAI::ConfigurationError => e

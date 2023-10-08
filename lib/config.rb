@@ -15,7 +15,9 @@ module Config
 
   def load_temperature
     config = YAML.load_file(config_path)
-    config['TEMPERATURE']
+    unless config == false
+      config['TEMPERATURE']
+    end
   end
 
   def save_temperature(temperature)
@@ -26,7 +28,9 @@ module Config
 
   def load_context_length
     config = YAML.load_file(config_path)
-    config['CONTEXT_LENGTH']
+    unless config == false
+      config['CONTEXT_LENGTH']
+    end
   end
 
   def save_context_length(context_length)

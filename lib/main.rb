@@ -22,9 +22,12 @@ class Main
     load_config()
  
 
-    comp = proc { |s| LIST.grep(/^#{Regexp.escape(s)}/) }
-    Readline.completion_append_character = ""
-    Readline.completion_proc = comp
+    ## When using Readline, TAB will auto-complete
+    ## But it will only auto-complete from the LIST
+    ## Need to handle directories and files when -lf, -w, -t are used
+    #comp = proc { |s| LIST.grep(/^#{Regexp.escape(s)}/) }
+    #Readline.completion_append_character = ""
+    #Readline.completion_proc = comp
 
     Help.interactive_desc()
     while input = Readline.readline("\n> ", true) do

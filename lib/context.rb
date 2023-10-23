@@ -2,7 +2,7 @@ require_relative './files.rb'
 require_relative './config.rb'
 class Context
   extend Files, Config, Logging
-  def self.load_context()
+  def self.load_context(file_with_context: false)
     if File.exist?(context_path)
       conversation = File.readlines(context_path).map { |line| JSON.parse(line) }
     else
@@ -19,6 +19,10 @@ class Context
       conversation.each_with_index do |v, i|
         context_as_string += "My #{i + 1} input was: #{v['input']}\nYour #{i + 1} response was: #{v['response']}\n"
       end
+    end
+
+    if file_with_context
+      return load_context_file() + context_as_string
     end
 
     return context_as_string
@@ -53,7 +57,7 @@ class Context
       file_out = File.open(context_file_path, 'w')
       char_count = 0
       file_in.each do |line|
-        puts "Line: #{line}"
+        #puts "Line: #{line}"
         char_count += line.length
         file_out.write(line)
       end

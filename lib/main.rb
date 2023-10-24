@@ -70,6 +70,8 @@ class Main
         stript_input = input.sub(/^-lf/, "").strip
         log("Loading File #{stript_input}")
         Context.save_context_file(stript_input)
+      when /^-df/
+        Context.delete_file_context()
       when /^-f/
         stript_input = input.sub(/^-f/, "").strip
         file_as_string = Context.load_context_file()

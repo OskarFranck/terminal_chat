@@ -15,7 +15,7 @@ class Main
   extend Logging, Files, Config
   LIST = [
     "exit", "quit", "version", "clear", "help", "show",
-    "-w", "-t", "-lf", "-f", "config", "temp", "context"
+    "-w", "-t", "-lf", "-f", "-df", "config", "temp", "context"
   ].sort
 
   def self.run()

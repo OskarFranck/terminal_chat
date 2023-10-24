@@ -54,6 +54,7 @@ class Context
 
   def self.save_context_file(file_path)
     ## If the file extenstion is pdf or docx raise an error.
+    ## This is not a complete list of file extensions.
     if file_path.include?(".pdf") || file_path.include?(".docx")
       raise FileFormatError, "File type not supported."
     end

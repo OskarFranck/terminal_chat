@@ -119,7 +119,7 @@ class Prompt
 
   def self.client()
     conf = YAML.load(File.read(config_path))
-    unless conf == false
+    unless (conf == false || conf.nil?)
       key = conf["OPENAI_API_KEY"]
     end
 

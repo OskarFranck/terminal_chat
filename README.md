@@ -17,50 +17,53 @@ Api key from [OpenAI](https://platform.openai.com/overview)
 gem install ask-ai
 ```
 
+You can then start an interactive session with:
+```
+ask-ai
+``` 
+
 Configure your API key\
 
-This is buggy and does not work as intended.\
-For now Options 2 is the reliable way to setup the key.\
-
-Option 1:
-  run ``` ask-ai -h ``` this will let you paste the key in the terminal and the program will save it.\
-
-Option 2:
-  run ``` gem open ask-ai ``` find the file config/config.yml\
-  where you need to put your OPENAI_API_KEY like so: \
-OPENAI_API_KEY: \<key>
-
-You can then use:
 ```
-ask-ai [option] [input]
-``` 
-
+config key <key>
+```
 #### Usage
 
-You can interact in two ways, 'normal' or 'conversation'. \
-When you call ask-ai without flags like so:
+Start your interactive session with:
 ```
-ask-ai Can you give me a simple pasta recipe?
-``` 
-This is just a single question to the bot. \
-When you call ask-ai with the conversation flag like so:
-```
-ask-ai -c I love pasta
-```  
-The bot will 'remember' that you like pasta and the next prompt could be:
-```
-ask-ai -c Give me a recipe of something i like
-```
-You will proboply get a pasta recipe because you said you love pasta. \
-You can delete the conversation with:
-```
-ask-ai -d OR ask-ai -d "new question"
+ask-ai
 ```
 
-You can also start an interactive session, This is always a conversation. (the context for '-c' and '-i' is shared)\
+You can load a file with ``` -lf path_to_file ``` then you can ask question about the file. \
+Don't forget to use ```-f ``` when you want to ask about a file. \
+(As of now you can only load files that can be read line by line, like txt, yml or code)
+
+![ruby_file](./docs/file.png)
+
+or something like
+
+![sql_file](./docs/sql.png)
+
+You can load more then one file, just be aware that a lot of input consumes more tokens. \
+To delete files from context use ``` -df ``` to delete one or all loaded files.
+
+
+You can also use it as chat bot, it by default save 10 Input / Output as a context
+
+![pasta](./docs/pasta.png)
+
+You can delete the conversation with:
 ```
-ask-ai -i 
+clear
 ```
+
+
+For all available commands type:
+```
+help
+```
+
+
 
 
 

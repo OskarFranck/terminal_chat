@@ -20,7 +20,7 @@ class Prompt
         parameters: {
           model: "gpt-3.5-turbo",
           messages: [{ role: "user", content: conversation}],
-          temperature: temp, ## Should be a parameter
+          temperature: temp,
           stream: proc do |chunk, _bytesize|
             response += chunk.dig("choices", 0, "delta", "content") unless chunk.dig("choices", 0, "delta", "content").nil?
             print chunk.dig("choices", 0, "delta", "content")
@@ -119,7 +119,7 @@ class Prompt
 
   def self.client()
     conf = YAML.load(File.read(config_path))
-    unless conf == false
+    unless (conf == false || conf.nil?)
       key = conf["OPENAI_API_KEY"]
     end
 

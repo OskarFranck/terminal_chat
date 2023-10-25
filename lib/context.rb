@@ -1,8 +1,9 @@
 require_relative './files.rb'
 require_relative './config.rb'
+require_relative './file_format_error.rb'
 class Context
   extend Files, Config, Logging
-  def self.load_context()
+  def self.load_context(file_with_context: false)
     if File.exist?(context_path)
       conversation = File.readlines(context_path).map { |line| JSON.parse(line) }
     else
@@ -19,6 +20,10 @@ class Context
       conversation.each_with_index do |v, i|
         context_as_string += "My #{i + 1} input was: #{v['input']}\nYour #{i + 1} response was: #{v['response']}\n"
       end
+    end
+
+    if file_with_context
+      return load_context_file() + context_as_string
     end
 
     return context_as_string
@@ -48,12 +53,19 @@ class Context
   end
 
   def self.save_context_file(file_path)
+    ## If the file extenstion is pdf or docx raise an error.
+    ## This is not a complete list of file extensions.
+    if file_path.include?(".pdf") || file_path.include?(".docx")
+      raise FileFormatError, "File type not supported."
+    end
     unless file_path.nil?
+      conter = 0
       file_in = File.open(file_path, 'r')
-      file_out = File.open(context_file_path, 'w')
+      file_out = File.open(context_file_path, 'a')
+      file_out.write("loaded_context_file_path=#{file_path}\n")
       char_count = 0
       file_in.each do |line|
-        puts "Line: #{line}"
+        #puts "Line: #{line}"
         char_count += line.length
         file_out.write(line)
       end
@@ -68,6 +80,8 @@ class Context
     end
   rescue Errno::ENOENT
     log("No file at '#{file_path}' found.")
+  rescue FileFormatError => e
+    log(e.message)
   end
 
   def self.load_context_file()
@@ -82,6 +96,71 @@ class Context
     log("No file at '#{context_file_path}' found.")
     log("Load a file with 'aa -lf <file_path>'")
     return ""
+  end
+  ## This first class pasta method need to be refactored.
+  ## It's a mess.
+  def self.delete_file_context()
+    counter = 1
+    delete_lines = []
+    last_line = 0
+    File.open(context_file_path, "r") { |file|
+      if file.size == 0
+        log("No files loaded.")
+        return
+      end
+      file.readlines.each_with_index { |line, index|
+        if line.include?("loaded_context_file_path=")
+          log("#{counter}: #{line.gsub("loaded_context_file_path=", "")}")
+          delete_lines.push(index)
+          counter += 1
+        end
+        last_line = index
+      }
+    }
+    if counter == 1 + 1
+      log "One file loaded. Enter '1' or 'all' to delete it."
+      log "Enter 'a' to abort."
+    else
+      log("Which file do you want to delete? (1-#{counter - 1}) or 'all'")
+      log("Enter 'a' to abort.")
+    end
+  
+    delete_counter = 0
+    while input = Readline.readline("\nDelete --> ", true) do
+      if input == "a"
+        log("Aborting.")
+        return
+      elsif input == "all"
+        File.truncate(context_file_path, 0)
+        log("Deleted all files.")
+        return
+      elsif input.to_i >= 1 && input.to_i < counter
+        lines_to_save = []
+        File.open(context_file_path, "r") { |file|
+          file.readlines.each_with_index { |line, index|
+            start_line = delete_lines[input.to_i - 1]
+            end_line = delete_lines[input.to_i]
+            if end_line.nil?
+              end_line = last_line + 1
+            end
+            if index < start_line || index > end_line - 1
+              lines_to_save.push(line)
+            end
+          }
+        }
+        File.truncate(context_file_path, 0)
+        File.open(context_file_path, "a") { |file|
+          lines_to_save.each { |line|
+            file.write(line)
+          }
+        }
+        log("Deleting file")
+        return
+      elsif input.to_i <= 0 || input.to_i > counter
+        log("Please enter a number between 1 and #{counter - 1}")
+        log("Enter 'a' to abort.")
+      end
+    end
   end
 
 end

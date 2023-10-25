@@ -15,7 +15,7 @@ class Main
   extend Logging, Files, Config
   LIST = [
     "exit", "quit", "version", "clear", "help", "show",
-    "-w", "-t", "-lf", "-f", "config", "temp", "context"
+    "-w", "-t", "-lf", "-f", "-df", "config", "temp", "context"
   ].sort
 
   def self.run()
@@ -26,6 +26,21 @@ class Main
     #comp = proc { |s| LIST.grep(/^#{Regexp.escape(s)}/) }
     #Readline.completion_append_character = ""
     #Readline.completion_proc = comp
+
+    ## Function that when called activates completion from LIST
+    # def self.list_auto_complete()
+    #   Readline.completion_append_character = ""
+    #   Readline.completion_proc = proc do |s|
+    #     if s.start_with?("-w", "-t", "-lf", "-f")
+    #       pattern = s.sub(/^-w/, "") + "*"
+    #       Dir.glob(pattern).grep(/^#{Regexp.escape('')}/)
+    #     else
+    #       LIST.grep(/^#{Regexp.escape(s)}/)
+    #     end
+    #   end
+    # end
+
+    # list_auto_complete()
 
     Help.interactive_desc()
     while input = Readline.readline("\n> ", true) do
@@ -55,6 +70,8 @@ class Main
         stript_input = input.sub(/^-lf/, "").strip
         log("Loading File #{stript_input}")
         Context.save_context_file(stript_input)
+      when /^-df/
+        Context.delete_file_context()
       when /^-f/
         stript_input = input.sub(/^-f/, "").strip
         file_as_string = Context.load_context_file()
@@ -62,8 +79,9 @@ class Main
           log("No file loaded.")
           next
         end
+        context = Context.load_context(file_with_context: true)
         log("")
-        Prompt.stream_prompt(stript_input, file_as_string)
+        Context.save_context(Prompt.stream_prompt(stript_input, context))
         log("")
       when ""
         log("No input given.")

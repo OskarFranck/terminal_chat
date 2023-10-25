@@ -9,7 +9,7 @@ module Config
 
   def save_key(api_key)
     config = YAML.load_file(config_path)
-    if config == false
+    if (config == false || config.nil?)
       config = {}
     end
     config['OPENAI_API_KEY'] = api_key
@@ -18,7 +18,7 @@ module Config
 
   def load_temperature
     config = YAML.load_file(config_path)
-    unless config == false
+    unless (config == false || config.nil?)
       config['TEMPERATURE']
     end
   end
@@ -34,7 +34,7 @@ module Config
 
   def load_context_length
     config = YAML.load_file(config_path)
-    unless config == false
+    unless (config == false || config.nil?)
       config['CONTEXT_LENGTH']
     end
   end

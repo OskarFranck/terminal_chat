@@ -44,6 +44,7 @@ class Help
     log("Type '-w <filepath>' to whisper transcribe.")
     log("Type '-t' <filepath> to whisper translate.")
     log("Type '-lf' <filepath> to load file.")
+    log "Type '-df' to delete file context."
     log("Type '-f' to use loaded file as context.")
   end
 end

@@ -18,7 +18,7 @@ class Prompt
     unless client.nil?
       client.chat(
         parameters: {
-          model: "gpt-3.5-turbo",
+          model: "gpt-4o-mini",
           messages: [{ role: "user", content: conversation}],
           temperature: temp,
           stream: proc do |chunk, _bytesize|

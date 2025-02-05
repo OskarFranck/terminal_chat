@@ -1,4 +1,5 @@
 config/config.yml
+files/
 todo.md
 ask-ai-*
 tmp/

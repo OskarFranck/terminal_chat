@@ -16,6 +16,22 @@ module Config
     File.open(config_path, 'w') { |f| YAML.dump(config, f) }
   end
 
+  def load_model
+    config = YAML.load_file(config_path)
+    unless (config == false || config.nil?)
+      config['OPENAI_MODEL']
+    end
+  end
+
+  def save_model(model)
+    config = YAML.load_file(config_path)
+    if (config == false || config.nil?)
+      config = {}
+    end
+    config['OPENAI_MODEL'] = model
+    File.open(config_path, 'w') { |f| YAML.dump(config, f) }
+  end
+
   def load_temperature
     config = YAML.load_file(config_path)
     unless (config == false || config.nil?)
@@ -70,6 +86,13 @@ module Config
       end
       save_context_length(stript_value)
       return 'Context length saved'
+    elsif value.include?('model')
+      stript_value = value.sub(/^model/, '').strip
+      if stript_value.empty?
+        return 'No model given'
+      end
+      save_model(stript_value)
+      return 'Model saved'
     else
       return 'Invalid config value'
     end

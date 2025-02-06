@@ -37,9 +37,11 @@ class Help
 
   def self.interactive_desc()
     log("Type 'exit' or 'quit' to exit.")
+    log("Type 'models' to list available models.")
     log("Type 'clear' to clear context.")
     log("Type 'show' to show context.")
-    log("Type 'help' to show help.")
+    log("Type 'debug <prompt>' to force print response, will show the whole response object.")
+    log("Type 'help' to show help.\n  Try help <addional command> or <option> for detailed help\n  i.e help config or help -w")
     log("Type 'config [key, temp, context]' to change config.")
     log("Type '-w <filepath>' to whisper transcribe.")
     log("Type '-t' <filepath> to whisper translate.")

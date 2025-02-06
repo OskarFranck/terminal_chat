@@ -83,6 +83,11 @@ class Main
         log("")
         Context.save_context(Prompt.stream_prompt(stript_input, context))
         log("")
+      when /^debug/
+        strip_input = input.sub(/^debug/, "").strip
+        log("DEBUG START")
+        Prompt.debug_prompt(strip_input)
+        log("DEBUG END")
       when ""
         log("No input given.")
       when /^config/
@@ -90,6 +95,11 @@ class Main
         res = set_config(strip_input)
         if res.is_a?(String)
           log(res)
+        end
+      when 'models'
+        arr = Prompt.list_models()
+        arr.each do |i|
+          log(i)
         end
       else
         context = Context.load_context()

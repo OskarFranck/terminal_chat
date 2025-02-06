@@ -14,11 +14,15 @@ class Prompt
     else
       conversation += "\n My question: #{input}"
     end
+    model = load_model()
+    if model.nil?
+      model = "gpt-4o-mini"
+    end
     response = ''
     unless client.nil?
       client.chat(
         parameters: {
-          model: "gpt-4o-mini",
+          model: model,
           messages: [{ role: "user", content: conversation}],
           temperature: temp,
           stream: proc do |chunk, _bytesize|
@@ -115,6 +119,28 @@ class Prompt
     log(e)
   end
 
+  def self.debug_prompt(input)
+    model = load_model()
+    if model.nil?
+      model = "gpt-4o-mini"
+    end
+    response = client.chat(
+      parameters: {
+        model: model,
+        messages: [{ role: "user", content: input}],
+        temperature: 0.7
+      }
+    )
+    log(response)
+  end
+
+  def self.list_models()
+    arr = []
+    client.models.list["data"].each do |m|
+      arr << m["id"]
+    end
+    arr
+  end
   private
 
   def self.client()

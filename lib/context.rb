@@ -48,8 +48,8 @@ class Context
   end
 
   def self.delete_context()
-    log("Deleting previous context.")
     File.truncate(context_path, 0)
+    log("Previous context deleted.")
   end
 
   def self.save_context_file(file_path)
@@ -94,7 +94,7 @@ class Context
     return file_as_string
   rescue Errno::ENOENT
     log("No file at '#{context_file_path}' found.")
-    log("Load a file with 'aa -lf <file_path>'")
+    log("Load a file with '-lf <file_path>'")
     return ""
   end
   ## This first class pasta method need to be refactored.
@@ -121,7 +121,7 @@ class Context
       log "One file loaded. Enter '1' or 'all' to delete it."
       log "Enter 'a' to abort."
     else
-      log("Which file do you want to delete? (1-#{counter - 1}) or 'all'")
+      log("Which file do you want to delete? (1, #{counter - 1}) or 'all'")
       log("Enter 'a' to abort.")
     end
   
@@ -159,6 +159,8 @@ class Context
       elsif input.to_i <= 0 || input.to_i > counter
         log("Please enter a number between 1 and #{counter - 1}")
         log("Enter 'a' to abort.")
+      else
+        log("This is a feature, not a bug")
       end
     end
   end
